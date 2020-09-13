@@ -34,7 +34,7 @@ function App() {
   const [space, setSpace] = useState(null)
 
   const handleSpace = (v) => {
-    if(home && getCookie("id")) setSpace(v)
+    setSpace(v)
   }
   const handleProfile = (v) => {
     showProfile(v)
@@ -46,13 +46,12 @@ function App() {
       setUser(v)
     }
   }
-
   useEffect(() => {
+    console.log("user"+user)
     document.title = "Co'work"
-    axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
-
+    if(home) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
  }, []);
-  console.log(user)
+ 
   return (
     <div className="App">
       <Container fluid className="pl-0 pr-0">
@@ -71,21 +70,23 @@ function App() {
                 <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 3}}/>
               </Col></>}
               <Col lg="8">
+                {home && getCookie("id") && !space && <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  variant="primary"
+                  role="status"
+                  aria-hidden="true"
+                  style={{width: "5em", height: "5em"}}
+                  />}
                 <Row>
-              {home && getCookie("id") && space && space.map(s => 
-              <Col lg="4 pb-3">
-                <CardsSpace data={{title: s.nom}}/>
-              </Col>)}
-              </Row>
+                  {home && getCookie("id") && space && space.map(s => 
+                  <Col lg="4 pb-3">
+                    <CardsSpace data={{title: s.nom}}/>
+                  </Col>)}
+                </Row>
               </Col>
-              {home && getCookie("id") && !space && <Spinner
-                as="span"
-                animation="border"
-                size="sm"
-                role="status"
-                aria-hidden="true"
-                className="pr-2"
-              />}
+              
             </Row>
             {profile && getCookie("id") && 
             <Row>
