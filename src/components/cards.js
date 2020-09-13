@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {Button, Card} from 'react-bootstrap'
 import {DetailsModal} from '../components/modal'
 import {getCookie} from '../util/util'
+import axios from 'axios';
+import {Col} from 'react-bootstrap'
 
 export function Cards(props) {
     const [show, setShow] = useState(false);
@@ -27,4 +29,22 @@ export function Cards(props) {
         
     );
   }
-  
+
+export function CardsSpace(props) {
+  return (
+    <>
+      <Card className='h-100' style={{ width: '18rem' }}>
+        <Card.Body>
+          <Card.Title>{props.data.title}</Card.Title>
+          <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
+          <Card.Text>
+            
+          </Card.Text>
+          <Button variant="primary">
+            En savoir plus
+          </Button>
+        </Card.Body>
+      </Card>
+      </>
+  );
+}

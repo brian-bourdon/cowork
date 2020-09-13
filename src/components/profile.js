@@ -65,14 +65,12 @@ function ProfileForm(props) {
 }
 
 function AbonnementTab(props) {
-    console.log(props.user.user)
     let abonnement = ""
-    if(props.user.user.id_abonnement === "null") abonnement = "Aucun abonnement en cours"
+    if(props.user.user.id_abonnement === null) abonnement = "Aucun abonnement en cours"
     else if(props.user.user.id_abonnement === "1") abonnement = "Abonnement simple 12 mois sans engagement"
     else if(props.user.user.id_abonnement === "2") abonnement = "Abonnement simple sans engagement"
     else if(props.user.user.id_abonnement === "3") abonnement = "Abonnement résident 8 mois sans engagement"
     else if(props.user.user.id_abonnement === "4") abonnement = "Abonnement résident sans engagement"
-
     return(
         <Jumbotron>
         <h1>{abonnement}</h1>

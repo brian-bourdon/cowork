@@ -1,14 +1,15 @@
 import React from 'react';
 import {useState, useEffect} from 'react'
 import './App.css';
-import {Container, Row, Col} from 'react-bootstrap'
+import {Container, Row, Col, Spinner} from 'react-bootstrap'
 import {InscriptionModal, ConnectionModal} from './components/modal'
-import {Cards} from './components/cards'
+import {Cards, CardsSpace} from './components/cards'
 import {Header} from './components/header'
 import {Footer} from './components/footer'
 import {text_abonnement_residant, text_sans_abonnment, text_abonnment_simple, getCookie} from './util/util'
 import {ProfileTab} from './components/profile'
 import {validUser} from './components/inscription';
+import axios from 'axios'
 
 function App() {
   let userCookie = null
@@ -26,12 +27,18 @@ function App() {
   const handleCloseC = () => setShowC(false);
   const handleShowC = () => setShowC(true);
 
-  const [profile, showProfile] = useState(true);
+  const [profile, showProfile] = useState(false);
 
   const [user, setUser] = useState(userCookie);
+  const [home, showHome] = useState(true)
+  const [space, setSpace] = useState(null)
 
-  const handleProfile = () => {
-    showProfile(true)
+  const handleSpace = (v) => {
+    if(home && getCookie("id")) setSpace(v)
+  }
+  const handleProfile = (v) => {
+    showProfile(v)
+    showHome(!v)
   };
 
   const handleUser = (v) => {
@@ -42,6 +49,7 @@ function App() {
 
   useEffect(() => {
     document.title = "Co'work"
+    axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
 
  }, []);
   console.log(user)
@@ -52,8 +60,8 @@ function App() {
         {ConnectionModal(showC, handleCloseC, handleUser, user)}
           {Header(handleShowI, handleShowC, handleUser, handleProfile)}
           <main className="p-3">
-            {!getCookie("id") && <Row className="justify-content-lg-center">
-              <Col lg="auto">
+            <Row className={"justify-content-lg-center"}>
+              {home && !getCookie("id") && <><Col lg="auto">
                 <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 1}}/>
               </Col>
               <Col lg="auto">
@@ -61,8 +69,24 @@ function App() {
               </Col>
               <Col lg="auto">
                 <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 3}}/>
+              </Col></>}
+              <Col lg="8">
+                <Row>
+              {home && getCookie("id") && space && space.map(s => 
+              <Col lg="4 pb-3">
+                <CardsSpace data={{title: s.nom}}/>
+              </Col>)}
+              </Row>
               </Col>
-            </Row>}
+              {home && getCookie("id") && !space && <Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                role="status"
+                aria-hidden="true"
+                className="pr-2"
+              />}
+            </Row>
             {profile && getCookie("id") && 
             <Row>
               <Col lg="12">

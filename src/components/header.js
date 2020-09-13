@@ -16,7 +16,7 @@ export function Header(handleShowI, handleShowC, handleUser, handleProfile) {
     return (
       <>
         <Navbar bg="primary" variant="dark" expand="lg" className='py-md-3'>
-          <Navbar.Brand href="#home">Co'Work</Navbar.Brand>
+          <Navbar.Brand onClick={()=>handleProfile(false)} href="#">Co'Work</Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav">
             <Nav className="mr-auto">
