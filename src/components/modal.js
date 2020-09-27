@@ -3,7 +3,7 @@ import {Form, Button,Modal, Spinner, Alert} from 'react-bootstrap'
 import {Connection} from '../components/connection'
 import {submitInscription} from '../components/inscription'
 
-export function ConnectionModal(show, handleClose, handleUser, user) {
+export function ConnectionModal(props) {
     const [email, setEmail] = useState("")
     const [pwd, setPwd] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -15,14 +15,14 @@ export function ConnectionModal(show, handleClose, handleUser, user) {
     const handlePwd = (event) => {
       setPwd(event.target.value)
     }
-    console.log(user)
+    
     return (
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={props.data.show} onHide={props.data.handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Connection</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {(!user || user === "deconnected") && <Form>
+          {(!props.data.user || props.data.user === "deconnected") && <Form>
             <Form.Group controlId="formBasicEmail">
               <Form.Label>Mail</Form.Label>
               <Form.Control type="email" placeholder="Email" onKeyUp={handleEmail.bind(this)}/>
@@ -32,7 +32,7 @@ export function ConnectionModal(show, handleClose, handleUser, user) {
               <Form.Control type="password" placeholder="Mot de passe" onKeyUp={handlePwd.bind(this)}/>
             </Form.Group>
             <div className="text-center pt-3">
-              <Button className="mb-3" variant="primary" onClick={() => {Connection(email, pwd, setIsLoading, handleClose, handleUser)}} disabled={email.trim() === "" || pwd.trim() === ""}>
+              <Button className="mb-3" variant="primary" onClick={() => {Connection(email, pwd, setIsLoading, props.data.handleClose, props.data.handleUser)}} disabled={email.trim() === "" || pwd.trim() === ""}>
               {isLoading && <Spinner
                 as="span"
                 animation="border"
@@ -45,8 +45,8 @@ export function ConnectionModal(show, handleClose, handleUser, user) {
               </Button>
             </div>
           </Form>}
-          {user !== null && user !== "deconnected" && <div className="text-center"><Alert className="mb-0" variant={user ? "success" : "danger"}>
-                {user && user !== "disconnected" ? "Connection réussie" : "L'authentification a échoué"}
+          {props.data.user !== null && props.data.user !== "deconnected" && <div className="text-center"><Alert className="mb-0" variant={props.data.user ? "success" : "danger"}>
+                {props.data.user && props.data.user !== "disconnected" ? "Connection réussie" : "L'authentification a échoué"}
             </Alert></div>}
         </Modal.Body>
       </Modal>

@@ -42,13 +42,13 @@ const DateTimePicker = (props) => {
 
 export function ReservationModal(props) {
     const[type, setType] = useState(1)
-    const[isLoading, setIsLoading] = useState(true)
+    const[isLoading, setIsLoading] = useState(props.data.test)
     const[privativeSpace, setPrivativeSpace] = useState([])
     const[formPrivateSpace, setFormPrivateSpace] = useState(null)
     const[dateTimeStart, setDateTimeStart] = useState(moment(setHours(setMinutes(new Date(), 30), 16)).format('YYYY-MM-DD HH-mm-ss'))
     const[dateTimeEnd, setDateTimeEnd] = useState(moment(setHours(setMinutes(new Date(), 30), 16)).format('YYYY-MM-DD HH-mm-ss'))
     const[reservation, setReservation] = useState(null)
-    
+
     const handleType = (event) => {
         setType(event.target.value)
     }
@@ -68,17 +68,17 @@ export function ReservationModal(props) {
     const handleReservation = (v) => {
         setReservation(v)
     }
-
+    
     useEffect(() => {
-        axios.get('https://cowork-paris.000webhostapp.com/index.php/PrivativeSpace/'+props.data.idSpace)
+        axios.get('https://cowork-paris.000webhostapp.com/index.php/PrivativeSpace/'+ props.data.idSpace)
         .then(res => {
             console.log(res.data)
-          setIsLoading(false)
-          setPrivativeSpace(res.data)
-          setFormPrivateSpace([...res.data].shift().id)
+            setIsLoading(false)
+            setPrivativeSpace(res.data)
+            setFormPrivateSpace([...res.data].shift().id)
         })
         .catch(e => setIsLoading(false))
-      }, []);
+      }, [props.data.idSpace]);
 
     return(
         <>
@@ -96,7 +96,7 @@ export function ReservationModal(props) {
                 <option value="3">Commandes de plateaux repas</option>
                 </Form.Control>
             </Form.Group>
-            {type == 1 && isLoading && <Spinner
+            {type == 1 && isLoading && <div className="text-center"><Spinner
                   as="span"
                   animation="border"
                   size="sm"
@@ -104,7 +104,7 @@ export function ReservationModal(props) {
                   role="status"
                   aria-hidden="true"
                   style={{width: "5em", height: "5em"}}
-                  />}
+                  /></div>}
             {type == 1 && !isLoading &&
             <>
             <Form.Group controlId="exampleForm.ControlSelect1">

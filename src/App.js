@@ -44,7 +44,10 @@ function App() {
     setIdSpace(id)
     setReservation(v)
   }
-
+  const handleHome = (v) => {
+    setSpace(null)
+    showHome(v)
+  }
   const handleSpace = (v) => {
     setSpace(v)
   }
@@ -54,23 +57,25 @@ function App() {
   };
 
   const handleUser = (v) => {
-    if(v !== {} && v && v !== user) {
+    if(v === null) setSpace(null)
+    if(v !== {} && v !== user) {
       setUser(v)
     }
   }
+  
   useEffect(() => {
-    console.log("user"+user)
+    console.log("ok")
     document.title = "Co'work"
-    if(home) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
- }, []);
+    if(home && user) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
+ }, [user, home]);
  
   return (
     <div className="App">
       <Container fluid className="pl-0 pr-0">
-        <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace}}/>
-        <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />
-        {ConnectionModal(showC, handleCloseC, handleUser, user)}
-          {Header(handleShowI, handleShowC, handleUser, handleProfile)}
+        {showReservation && <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace, test: true}}/>}
+        {showI && <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />}
+        {showC && <ConnectionModal data={{show: showC, handleClose: handleCloseC, handleUser: handleUser, user: user}}/>}
+          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome}}/>
           <main className="p-3">
             <Row className={"justify-content-lg-center"}>
               {home && !getCookie("id") && <><Col lg="auto">
