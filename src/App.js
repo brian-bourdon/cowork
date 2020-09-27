@@ -9,6 +9,7 @@ import {Footer} from './components/footer'
 import {text_abonnement_residant, text_sans_abonnment, text_abonnment_simple, getCookie} from './util/util'
 import {ProfileTab} from './components/profile'
 import {validUser} from './components/inscription';
+import {ReservationModal} from './components/reservation';
 import axios from 'axios'
 
 function App() {
@@ -33,6 +34,17 @@ function App() {
   const [home, showHome] = useState(true)
   const [space, setSpace] = useState(null)
 
+  const [showReservation, setReservation] = useState(false)
+  const handleCloseR = () => setReservation(false);
+  const [nomSpace, setNomSpace] = useState("")
+  const [idSpace, setIdSpace] = useState("")
+
+  const handleReservation = (v, nom, id) => {
+    setNomSpace(nom)
+    setIdSpace(id)
+    setReservation(v)
+  }
+
   const handleSpace = (v) => {
     setSpace(v)
   }
@@ -55,6 +67,7 @@ function App() {
   return (
     <div className="App">
       <Container fluid className="pl-0 pr-0">
+        <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace}}/>
         <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />
         {ConnectionModal(showC, handleCloseC, handleUser, user)}
           {Header(handleShowI, handleShowC, handleUser, handleProfile)}
@@ -82,7 +95,7 @@ function App() {
                 <Row>
                   {home && getCookie("id") && space && space.map(s => 
                   <Col lg="4 pb-3">
-                    <CardsSpace data={{title: s.nom}}/>
+                    <CardsSpace data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
                   </Col>)}
                 </Row>
               </Col>

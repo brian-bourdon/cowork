@@ -4,6 +4,7 @@ import {DetailsModal} from '../components/modal'
 import {getCookie} from '../util/util'
 import axios from 'axios';
 import {Col} from 'react-bootstrap'
+import {SubscriptionModal} from '../components/reservation'
 
 export function Cards(props) {
     const [show, setShow] = useState(false);
@@ -33,15 +34,14 @@ export function Cards(props) {
 export function CardsSpace(props) {
   return (
     <>
-      <Card className='h-100' style={{ width: '18rem' }}>
+      <Card className='h-100' style={{ width: '18rem' }} id={props.data.id}>
         <Card.Body>
           <Card.Title>{props.data.title}</Card.Title>
           <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
           <Card.Text>
-            
           </Card.Text>
-          <Button variant="primary">
-            En savoir plus
+          <Button variant="primary" onClick={()=>props.data.handleReservation(true, props.data.title, props.data.id)}>
+            Réserver
           </Button>
         </Card.Body>
       </Card>

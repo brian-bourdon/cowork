@@ -30,7 +30,7 @@ export function submitInscription(user, handleUser, handleInscription) {
             inscription = true
         }
         handleUser(user)
-        handleInscription(user)
+        handleInscription(user) // faut mettre true, a revoir
         })
         .catch(e => {
             handleUser(inscription)
