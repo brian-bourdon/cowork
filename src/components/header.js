@@ -26,7 +26,7 @@ export function Header(props) {
               {!getCookie("id") && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowI}>Inscription</Button>}
               {getCookie("id") && <DropdownButton id="dropdown-item-button" title={upperCaseFirst(getCookie("firstname").toLowerCase())} className="person-circle" alignRight>
               <Dropdown.Item as="button" onClick={() => props.data.handleProfile(true)}>Profil</Dropdown.Item>
-              <Dropdown.Item as="button" onClick={() => { deleteUser(); props.data.handleUser(null)}}>Déconection</Dropdown.Item>
+              <Dropdown.Item as="button" onClick={() => { deleteUser(); props.data.handleUser(null); props.data.handleHome(true); props.data.handleProfile(false)}}>Déconection</Dropdown.Item>
             </DropdownButton>}
             </Nav>
           </Navbar.Collapse>

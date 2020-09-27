@@ -65,6 +65,7 @@ function App() {
   
   useEffect(() => {
     console.log("ok")
+    console.log(home)
     document.title = "Co'work"
     if(home && user) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
  }, [user, home]);
