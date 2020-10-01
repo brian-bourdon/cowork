@@ -103,6 +103,7 @@ function App() {
                   <Col lg="4 pb-3">
                     <CardsSpace data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
                   </Col>)}
+                  {/* TODO: Replace by card deck */}
                 </Row>
               </Col>
               
