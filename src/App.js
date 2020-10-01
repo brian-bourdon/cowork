@@ -7,7 +7,7 @@ import {Cards, CardsSpace} from './components/cards'
 import {Header} from './components/header'
 import {Footer} from './components/footer'
 import {text_abonnement_residant, text_sans_abonnment, text_abonnment_simple, getCookie} from './util/util'
-import {ProfileTab} from './components/profile'
+import {ProfileTab, CustomerReservations} from './components/profile'
 import {validUser} from './components/inscription';
 import {ReservationModal} from './components/reservation';
 import axios from 'axios'
@@ -39,6 +39,8 @@ function App() {
   const [nomSpace, setNomSpace] = useState("")
   const [idSpace, setIdSpace] = useState("")
 
+  const [customerReservations, showCustomerReservations] = useState(false);
+
   const handleReservation = (v, nom, id) => {
     setNomSpace(nom)
     setIdSpace(id)
@@ -47,6 +49,7 @@ function App() {
   const handleHome = (v) => {
     setSpace(null)
     showHome(v)
+    showCustomerReservations(!v)
   }
   const handleSpace = (v) => {
     setSpace(v)
@@ -54,7 +57,14 @@ function App() {
   const handleProfile = (v) => {
     showProfile(v)
     showHome(!v)
-  };
+    showCustomerReservations(!v)
+  }
+
+  const handleCustomerReservations = (v) => {
+    showCustomerReservations(v)
+    showProfile(!v)
+    showHome(!v)
+  }
 
   const handleUser = (v) => {
     if(v === null) setSpace(null)
@@ -73,10 +83,10 @@ function App() {
   return (
     <div className="App">
       <Container fluid className="pl-0 pr-0">
-        {showReservation && <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace, test: true}}/>}
+        {showReservation && <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace, test: true, user: user}}/>}
         {showI && <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />}
         {showC && <ConnectionModal data={{show: showC, handleClose: handleCloseC, handleUser: handleUser, user: user}}/>}
-          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome}}/>
+          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations}}/>
           <main className="p-3">
             <Row className={"justify-content-lg-center"}>
               {home && !getCookie("id") && <><Col lg="auto">
@@ -112,6 +122,12 @@ function App() {
             <Row>
               <Col lg="12">
                 <ProfileTab user={{handleUser: handleUser, user: user}}/>
+              </Col>
+            </Row>}
+            {customerReservations && getCookie("id") && 
+            <Row>
+              <Col lg="12">
+                <CustomerReservations/>
               </Col>
             </Row>}
           </main>

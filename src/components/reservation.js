@@ -186,7 +186,7 @@ export function ReservationModal(props) {
             </Alert></div>}
           </Modal.Body>
           <Modal.Footer className="justify-content-center">
-            <Button variant="success" onClick={() => Reservation({type, formPrivateSpace, dateTimeStart, dateTimeEnd}, handleReservation)} >
+            <Button variant="success" onClick={() => Reservation({type, formPrivateSpace, dateTimeStart, dateTimeEnd}, handleReservation, props.data.user)} >
               Réserver
             </Button>
           </Modal.Footer>
@@ -195,27 +195,30 @@ export function ReservationModal(props) {
     );
   }
 
-  const Reservation = (data, handleReservation) => {
+  const Reservation = (data, handleReservation, user) => {
       let inscription = false
       let url = false
       if(data) {
         let formData = new FormData();
         if(data.type === "1") {
-        url = "https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace"
-        formData.append('horaire_debut', data.dateTimeStart);
-        formData.append('horaire_fin', data.dateTimeEnd);
-        formData.append('id_espace_privatif', data.formPrivateSpace);
+            url = "https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace"
+            formData.append('horaire_debut', data.dateTimeStart);
+            formData.append('horaire_fin', data.dateTimeEnd);
+            formData.append('id_espace_privatif', data.formPrivateSpace);
+            formData.append('user_id', user.id);
         }
         if(data.type === "2") {
-        url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
-        formData.append('horaire_debut', data.dateTimeStart);
-        formData.append('horaire_fin', data.dateTimeEnd);
-        formData.append('id_equipment', data.formPrivateSpace);
+            url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
+            formData.append('horaire_debut', data.dateTimeStart);
+            formData.append('horaire_fin', data.dateTimeEnd);
+            formData.append('id_equipment', data.formPrivateSpace);
+            formData.append('user_id', user.id);
         }
         if(data.type === "3") {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationMeal"
             formData.append('horaire', data.dateTimeStart);
             formData.append('id_meal', data.formPrivateSpace);
+            formData.append('user_id', user.id);
         }
         if(url) {
             fetch(url,

@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
-import {Tabs, Form, Button, Tab, Col, Row, Jumbotron} from 'react-bootstrap'
+import React, {useState, useEffect} from 'react';
+import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner} from 'react-bootstrap'
 import {submitModification} from '../components/inscription'
-import { getCookie } from '../util/util';
+import { getCookie } from '../util/util'
+import axios from 'axios'
 
 function ProfileForm(props) {
     const[firstname, setFirstname] = useState(getCookie("firstname"))
@@ -88,23 +89,93 @@ function AbonnementTab(props) {
 }
 
 export function ProfileTab(props) {
-    console.log(props.user)
-    return(
-        <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
-        <Tab eventKey="profile" title="Profil">
-            <Row>
-                <Col lg="6" className="pt-3">
-                    <ProfileForm user={props.user}/>
-                </Col>
-            </Row>
-        </Tab>
-        <Tab eventKey="abonnement" title="Mon abonnement">
-            <Row>
-                <Col lg="6" className="pt-3">
-                    <AbonnementTab user={props.user}/>
-                </Col>
-            </Row>
-        </Tab>
-      </Tabs>
-    )
-  }
+  //console.log(props.user)
+  return(
+    <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
+    <Tab eventKey="profile" title="Profil">
+        <Row>
+            <Col lg="6" className="pt-3">
+                <ProfileForm user={props.user}/>
+            </Col>
+        </Row>
+    </Tab>
+    <Tab eventKey="abonnement" title="Mon abonnement">
+        <Row>
+            <Col lg="6" className="pt-3">
+                <AbonnementTab user={props.user}/>
+            </Col>
+        </Row>
+    </Tab>
+  </Tabs>
+  )
+}
+
+export function ListReservations(props) {
+  return (
+    <Accordion defaultActiveKey="0">
+      {props.data.allReservations.map(v => 
+      <Card>
+        <Card.Header>
+          <Accordion.Toggle as={Button} variant="link" eventKey={v.id}>
+            {v.horaire_debut}
+          </Accordion.Toggle>
+        </Card.Header>
+        <Accordion.Collapse eventKey={v.id}>
+          <Card.Body>
+            {Object.keys(v).map((key) => <p>{key+": "+v[key]}</p>)}
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>)
+      }
+    </Accordion>
+  )
+}
+
+export function CustomerReservations() {
+  const [allReservations, setAllReservations] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    axios.get('https://cowork-paris.000webhostapp.com/index.php/user/privative/'+getCookie("id"))
+    .then(res => {
+        console.log(res.data)
+        setIsLoading(false)
+        setAllReservations(res.data)
+    })
+    .catch(e => setIsLoading(false))
+  }, []);
+
+  return (
+    <Tabs defaultActiveKey="privative" id="uncontrolled-tab-example">
+      <Tab eventKey="privative" title="Espaces privatifs">
+          <Row>
+              <Col lg="6" className="pt-3">
+                {isLoading && <div className="text-center"><Spinner
+                as="span"
+                animation="border"
+                size="sm"
+                variant="primary"
+                role="status"
+                aria-hidden="true"
+                style={{width: "5em", height: "5em"}}
+                /></div>}
+                {!isLoading && <ListReservations data={{allReservations}}/>}
+              </Col>
+          </Row>
+      </Tab>
+      <Tab eventKey="materiel" title="Matériel">
+          <Row>
+              <Col lg="6" className="pt-3">
+              </Col>
+          </Row>
+      </Tab>
+      <Tab eventKey="meal" title="Plateaux repas">
+          <Row>
+              <Col lg="6" className="pt-3">
+              </Col>
+          </Row>
+      </Tab>
+    </Tabs>
+  )
+}
+
