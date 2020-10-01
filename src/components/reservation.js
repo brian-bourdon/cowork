@@ -48,6 +48,9 @@ export function ReservationModal(props) {
     const[equipment, setEquipment] = useState([])
     const[formPrivateSpace, setFormPrivateSpace] = useState(null)
     const[formEquipment, setFormEquipment] = useState(null)
+    const[meal, setMeal] = useState([])
+    const[formMeal, setFormMeal] = useState(null)
+    const[isLoadingMeal, setIsLoadingMeal] = useState(true)
     const[dateTimeStart, setDateTimeStart] = useState(moment(setHours(setMinutes(new Date(), 30), 16)).format('YYYY-MM-DD HH-mm-ss'))
     const[dateTimeEnd, setDateTimeEnd] = useState(moment(setHours(setMinutes(new Date(), 30), 16)).format('YYYY-MM-DD HH-mm-ss'))
     const[reservation, setReservation] = useState(null)
@@ -55,6 +58,7 @@ export function ReservationModal(props) {
     const handleType = (event) => {
         if(event.target.value === "1" || event.target.value === "2") setIsLoadingSpace(true)
         if(event.target.value === "2") setIsLoadingEquipment(true)
+        if(event.target.value === "3") setIsLoadingMeal(true)
         setType(event.target.value)
     }
 
@@ -65,6 +69,10 @@ export function ReservationModal(props) {
 
     const handleFormEquipment = (event) => {
         setFormEquipment(event.target.value)
+    }
+
+    const handleFormMeal = (event) => {
+        setFormMeal(event.target.value)
     }
 
     const handleDateTimeStart = (v) => {
@@ -100,6 +108,16 @@ export function ReservationModal(props) {
             })
             .catch(e => setIsLoadingEquipment(false))
         }
+        if(type === "3") {
+            axios.get('https://cowork-paris.000webhostapp.com/index.php/Meal/'+ props.data.idSpace)
+            .then(res => {
+                console.log(res.data)
+                setIsLoadingMeal(false)
+                setMeal(res.data)
+                setFormMeal([...res.data].shift().id)
+            })
+            .catch(e => setIsLoadingMeal(false))
+        }
 
       }, [props.data.idSpace, type]);
 
@@ -107,7 +125,7 @@ export function ReservationModal(props) {
         <>
         <Modal show={props.data.show} onHide={props.data.handleClose} size="lg">
           <Modal.Header closeButton>
-            <Modal.Title>{"Réservation "+props.data.nom}</Modal.Title>
+            <Modal.Title>{"Réservation " + props.data.nom}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
           <Form>
@@ -119,7 +137,7 @@ export function ReservationModal(props) {
                 <option value="3">Commandes de plateaux repas</option>
                 </Form.Control>
             </Form.Group>
-            {(type === "1" || type === "2") && !isLoadingSpace &&
+            {(type === "1") && !isLoadingSpace &&
             <>
             <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Espace privatifs</Form.Label>
@@ -145,7 +163,14 @@ export function ReservationModal(props) {
                 <Form.Group><DateTimePicker data={{handleDateTimeEnd}}/></Form.Group>
             </Form.Group>
             </>}
-            {(isLoadingSpace || (type === "2" && isLoadingEquipment)) && <div className="text-center"><Spinner
+            {type === "3" && !isLoadingMeal && <Form.Group controlId="exampleForm.ControlSelect1">
+                <Form.Label>Plateaux repas</Form.Label>
+                <Form.Control as="select" onChange={handleFormMeal.bind(this)}>
+                    {meal.map(v => <option value={v.id}>{v.nom}</option>)}
+                </Form.Control>
+            </Form.Group>
+            }
+            {(isLoadingSpace || (type === "2" && isLoadingEquipment) || (type === "3" && isLoadingMeal)) && <div className="text-center"><Spinner
                 as="span"
                 animation="border"
                 size="sm"
@@ -175,18 +200,23 @@ export function ReservationModal(props) {
       let url = false
       if(data) {
         let formData = new FormData();
-          if(data.type === "1") {
-            url = "https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace"
-            formData.append('horaire_debut', data.dateTimeStart);
-            formData.append('horaire_fin', data.dateTimeEnd);
-            formData.append('id_espace_privatif', data.formPrivateSpace);
-          }
-          if(data.type === "2") {
-            url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
-            formData.append('horaire_debut', data.dateTimeStart);
-            formData.append('horaire_fin', data.dateTimeEnd);
-            formData.append('id_equipment', data.formPrivateSpace);
-          }
+        if(data.type === "1") {
+        url = "https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace"
+        formData.append('horaire_debut', data.dateTimeStart);
+        formData.append('horaire_fin', data.dateTimeEnd);
+        formData.append('id_espace_privatif', data.formPrivateSpace);
+        }
+        if(data.type === "2") {
+        url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
+        formData.append('horaire_debut', data.dateTimeStart);
+        formData.append('horaire_fin', data.dateTimeEnd);
+        formData.append('id_equipment', data.formPrivateSpace);
+        }
+        if(data.type === "3") {
+            url = "https://cowork-paris.000webhostapp.com/index.php/ReservationMeal"
+            formData.append('horaire', data.dateTimeStart);
+            formData.append('id_meal', data.formPrivateSpace);
+        }
         if(url) {
             fetch(url,
                 {
