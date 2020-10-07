@@ -15,7 +15,7 @@ import axios from 'axios'
 function App() {
   let userCookie = null
   if(validUser({firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie("id_abonnement")})) {
-    userCookie = {firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie("id_abonnement") === "null" ? null : getCookie("id_abonnmenent")}
+    userCookie = {id: getCookie("id"), firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie("id_abonnement") === "null" ? null : getCookie("id_abonnmenent")}
   }
 
   const [showI, setShowI] = useState(false);
@@ -74,8 +74,6 @@ function App() {
   }
   
   useEffect(() => {
-    console.log("ok")
-    console.log(home)
     document.title = "Co'work"
     if(home && user) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
  }, [user, home]);
@@ -127,7 +125,7 @@ function App() {
             {customerReservations && getCookie("id") && 
             <Row>
               <Col lg="12">
-                <CustomerReservations/>
+                <CustomerReservations data={{user}}/>
               </Col>
             </Row>}
           </main>
