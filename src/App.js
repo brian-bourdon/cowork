@@ -1,7 +1,7 @@
 import React from 'react';
 import {useState, useEffect} from 'react'
 import './App.css';
-import {Container, Row, Col, Spinner} from 'react-bootstrap'
+import {Container, Row, Col, Spinner, CardDeck} from 'react-bootstrap'
 import {InscriptionModal, ConnectionModal} from './components/modal'
 import {Cards, CardsSpace} from './components/cards'
 import {Header} from './components/header'
@@ -10,6 +10,7 @@ import {text_abonnement_residant, text_sans_abonnment, text_abonnment_simple, ge
 import {ProfileTab, CustomerReservations} from './components/profile'
 import {validUser} from './components/inscription';
 import {ReservationModal} from './components/reservation';
+import {EvenemenentWrapper} from './components/evenement';
 import axios from 'axios'
 
 function App() {
@@ -40,6 +41,14 @@ function App() {
   const [idSpace, setIdSpace] = useState("")
 
   const [customerReservations, showCustomerReservations] = useState(false);
+  const [evenement, showEvenement] = useState(false);
+
+  const handleEvenements = () => {
+    showEvenement(true)
+    profile && showProfile(false)
+    home && showHome(false)
+    customerReservations && showCustomerReservations(false)
+  }
 
   const handleReservation = (v, nom, id) => {
     setNomSpace(nom)
@@ -50,6 +59,7 @@ function App() {
     setSpace(null)
     showHome(v)
     showCustomerReservations(!v)
+    showEvenement(!v)
   }
   const handleSpace = (v) => {
     setSpace(v)
@@ -58,12 +68,14 @@ function App() {
     showProfile(v)
     showHome(!v)
     showCustomerReservations(!v)
+    showEvenement(!v)
   }
 
   const handleCustomerReservations = (v) => {
     showCustomerReservations(v)
     showProfile(!v)
     showHome(!v)
+    showEvenement(!v)
   }
 
   const handleUser = (v) => {
@@ -84,18 +96,19 @@ function App() {
         {showReservation && <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace, test: true, user: user}}/>}
         {showI && <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />}
         {showC && <ConnectionModal data={{show: showC, handleClose: handleCloseC, handleUser: handleUser, user: user}}/>}
-          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations}}/>
+          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations, handleEvenements}}/>
           <main className="p-3">
             <Row className={"justify-content-lg-center"}>
-              {home && !getCookie("id") && <><Col lg="auto">
-                <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 1}}/>
-              </Col>
-              <Col lg="auto">
-                <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 2}}/>
-              </Col>
-              <Col lg="auto">
-                <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 3}}/>
-              </Col></>}
+              {home && !getCookie("id") && 
+              <>
+                <Col lg="auto">
+                  <CardDeck>
+                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 1}}/>
+                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 2}}/>
+                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 3}}/>
+                  </CardDeck>
+                </Col>
+              </>}
               <Col lg="8">
                 {home && getCookie("id") && !space && <Spinner
                   as="span"
@@ -107,10 +120,14 @@ function App() {
                   style={{width: "5em", height: "5em"}}
                   />}
                 <Row>
+                <CardDeck>
+                  <Row>
                   {home && getCookie("id") && space && space.map(s => 
-                  <Col lg="4 pb-3">
-                    <CardsSpace data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
-                  </Col>)}
+                    <Col lg="4 pb-3">
+                      <CardsSpace data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
+                    </Col>)}
+                    </Row>
+                </CardDeck>
                   {/* TODO: Replace by card deck */}
                 </Row>
               </Col>
@@ -128,6 +145,13 @@ function App() {
                 <CustomerReservations data={{user}}/>
               </Col>
             </Row>}
+            {evenement && getCookie("id") && 
+            <Row>
+              <Col lg="auto">
+                <EvenemenentWrapper data={{evenement, user}}/>
+              </Col>
+            </Row>
+            }
           </main>
           <Footer/>
       </Container>

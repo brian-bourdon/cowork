@@ -163,12 +163,19 @@ export function ReservationModal(props) {
                 <Form.Group><DateTimePicker data={{handleDateTimeEnd}}/></Form.Group>
             </Form.Group>
             </>}
-            {type === "3" && !isLoadingMeal && <Form.Group controlId="exampleForm.ControlSelect1">
+            {type === "3" && !isLoadingMeal && 
+            <>
+            <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Plateaux repas</Form.Label>
                 <Form.Control as="select" onChange={handleFormMeal.bind(this)}>
                     {meal.map(v => <option value={v.id}>{v.nom}</option>)}
                 </Form.Control>
             </Form.Group>
+            <Form.Group>
+                <Form.Label>Date et heure</Form.Label>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart}}/></Form.Group>
+            </Form.Group>
+            </>
             }
             {(isLoadingSpace || (type === "2" && isLoadingEquipment) || (type === "3" && isLoadingMeal)) && <div className="text-center"><Spinner
                 as="span"
@@ -205,20 +212,20 @@ export function ReservationModal(props) {
             formData.append('horaire_debut', data.dateTimeStart);
             formData.append('horaire_fin', data.dateTimeEnd);
             formData.append('id_espace_privatif', data.formPrivateSpace);
-            formData.append('user_id', user.id);
+            formData.append('id_user', user.id);
         }
         if(data.type === "2") {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
             formData.append('horaire_debut', data.dateTimeStart);
             formData.append('horaire_fin', data.dateTimeEnd);
             formData.append('id_equipment', data.formPrivateSpace);
-            formData.append('user_id', user.id);
+            formData.append('id_user', user.id);
         }
         if(data.type === "3") {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationMeal"
             formData.append('horaire', data.dateTimeStart);
             formData.append('id_meal', data.formPrivateSpace);
-            formData.append('user_id', user.id);
+            formData.append('id_user', user.id);
         }
         if(url) {
             fetch(url,

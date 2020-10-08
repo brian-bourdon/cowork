@@ -117,7 +117,7 @@ function ListReservations(props) {
       <Card>
         <Card.Header>
           <Accordion.Toggle as={Button} variant="link" eventKey={v.id}>
-            {v.horaire_debut || v.horaire}
+            {v.horaire_debut || v.horaire || v.id}
           </Accordion.Toggle>
         </Card.Header>
         <Accordion.Collapse eventKey={v.id}>
@@ -133,27 +133,30 @@ function ListReservations(props) {
 
 export function CustomerReservations(props) {
   const [privative, setPrivative] = useState([])
-  const [isLoadingPrivative, setIsLoadingPrivative] = useState(true)
 
   const [equipment, setEquipment] = useState([])
-  const [isLoadingEquipment, setIsLoadingEquipment] = useState(true)
 
   const [meal, setMeal] = useState([])
-  const [isLoadingMeal, setIsLoadingMeal] = useState(true)
+
+  const [events, setEvents] = useState([])
+
   const [activeTab, setActiveTab] = useState("privative")
 
-  const [isLoading, setIsLoading] = useState({privative: true, equipment: true, meal: true})
+  const [isLoading, setIsLoading] = useState({privative: true, equipment: true, meal: true, events: true})
 
   const handleSelect = (tab) => {
     switch(tab) {
       case "privative" :
-        setIsLoading({...isLoading, equipment: true, meal: true})
+        setIsLoading({...isLoading, equipment: true, meal: true, events: true})
         break;
       case "equipment" :
-        setIsLoading({...isLoading, privative: true, meal: true})
+        setIsLoading({...isLoading, privative: true, meal: true, events: true})
         break;
       case 'meal' :
-        setIsLoading({...isLoading, privative: true, equipment: true})
+        setIsLoading({...isLoading, privative: true, equipment: true, events: true})
+        break;
+      case 'events' :
+        setIsLoading({...isLoading, privative: true, equipment: true, meal: true})
         break;
     }
     setActiveTab(tab)
@@ -166,7 +169,7 @@ export function CustomerReservations(props) {
           setIsLoading({...isLoading, privative: false})
           setPrivative(res.data)
       })
-      .catch(e => setIsLoadingPrivative(false))
+      .catch(e => setIsLoading({...isLoading, privative: false}))
     }
     if(activeTab === "equipment") {
       axios.get('https://cowork-paris.000webhostapp.com/index.php/user/equipment/'+props.data.user.id)
@@ -174,7 +177,7 @@ export function CustomerReservations(props) {
         setIsLoading({...isLoading, equipment: false})
           setEquipment(res.data)
       })
-      .catch(e => setIsLoadingEquipment(false))
+      .catch(e => setIsLoading({...isLoading, equipment: false}))
     }
     if(activeTab === "meal") {
       axios.get('https://cowork-paris.000webhostapp.com/index.php/user/meal/'+props.data.user.id)
@@ -182,7 +185,15 @@ export function CustomerReservations(props) {
         setIsLoading({...isLoading, meal: false})
           setMeal(res.data)
       })
-      .catch(e => setIsLoadingMeal(false))
+      .catch(e => setIsLoading({...isLoading, meal: false}))
+    }
+    if(activeTab === "events") {
+      axios.get('https://cowork-paris.000webhostapp.com/index.php/user/events/'+props.data.user.id)
+      .then(res => {
+        setIsLoading({...isLoading, events: false})
+          setEvents(res.data)
+      })
+      .catch(e => setIsLoading({...isLoading, events: false}))
     }
   }, [activeTab]);
 
@@ -233,6 +244,22 @@ export function CustomerReservations(props) {
                   style={{width: "5em", height: "5em"}}
                   /></div>}
                 {!isLoading.meal && activeTab === "meal" && <ListReservations data={meal}/>}
+              </Col>
+          </Row>
+      </Tab>
+      <Tab eventKey="events" title="Evenements" name="events">
+          <Row>
+              <Col lg="6" className="pt-3">
+                {isLoading.events && <div className="text-center"><Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  variant="primary"
+                  role="status"
+                  aria-hidden="true"
+                  style={{width: "5em", height: "5em"}}
+                  /></div>}
+                {!isLoading.events && activeTab === "events" && <ListReservations data={events}/>}
               </Col>
           </Row>
       </Tab>

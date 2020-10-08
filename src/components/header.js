@@ -33,6 +33,7 @@ export function Header(props) {
               {getCookie("id") && <DropdownButton id="dropdown-item-button" title={upperCaseFirst(getCookie("firstname").toLowerCase())} className="person-circle" alignRight>
               <Dropdown.Item as="button" onClick={() => props.data.handleProfile(true)}>Profil</Dropdown.Item>
               <Dropdown.Item as="button" onClick={() => props.data.handleCustomerReservations(true)}>Réservations</Dropdown.Item>
+              <Dropdown.Item as="button" onClick={() => props.data.handleEvenements()}>Evenement</Dropdown.Item>
               <Dropdown.Item as="button" onClick={() => logout(props)}>Déconection</Dropdown.Item>
             </DropdownButton>}
             </Nav>
