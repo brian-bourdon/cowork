@@ -15,7 +15,7 @@ export function ConnectionModal(props) {
     const handlePwd = (event) => {
       setPwd(event.target.value)
     }
-    
+
     return (
       <Modal show={props.data.show} onHide={props.data.handleClose}>
         <Modal.Header closeButton>

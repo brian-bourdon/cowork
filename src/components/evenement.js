@@ -117,8 +117,11 @@ export function CardsEvenement(props) {
             <Card.Title>{props.infos.nom}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">{space}</Card.Subtitle>
             <>
-                {!isLoadingPr && <h5>Places restantes: <Badge variant={placesRestantes > 0 ? (placesRestantes > props.infos.nb_places / 2 ? "success" : "warning") : "danger"}>{placesRestantes}</Badge></h5>}
-                {isLoadingPr && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true"/>}
+                <h5>
+                    {"Places restantes: "}
+                    {isLoadingPr && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true"/>}
+                    {!isLoadingPr && <Badge variant={placesRestantes > 0 ? (placesRestantes > props.infos.nb_places / 2 ? "success" : "warning") : "danger"}>{placesRestantes}</Badge>}
+                </h5>
                 <h5>{props.infos.description}</h5>
             </>
             {inscription !== null && <div className="text-center"><Alert className="mb-0" variant={inscription ? "success" : "danger"}>
@@ -127,7 +130,7 @@ export function CardsEvenement(props) {
           </Card.Body>
           <Card.Footer>
             {!isLoadingRes && <Button variant="primary" onClick={() => InscriptionEvent(props.infos.user_id, props.infos.id, handleInscription)} disabled={placesRestantes <= 0 || isResByUser > 0}>
-                S'inscrire
+                {placesRestantes <= 0 || isResByUser > 0 ? "Vous êtes déja inscris" : "S'inscrire"}
             </Button>}
             {isLoadingRes && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true"/>}
           </Card.Footer>
