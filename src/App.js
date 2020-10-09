@@ -124,7 +124,7 @@ function App() {
                   <Row>
                   {home && getCookie("id") && space && space.map(s => 
                     <Col lg="4 pb-3">
-                      <CardsSpace data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
+                      <CardsSpace key={s.id} data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
                     </Col>)}
                     </Row>
                 </CardDeck>

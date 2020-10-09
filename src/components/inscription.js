@@ -26,6 +26,7 @@ export function submitInscription(user, handleUser, handleInscription) {
         })
         .then(res=>res.json())
         .then(res => {
+          console.log(res)
         if(res[0] === "User created successfully.") {
             inscription = true
         }

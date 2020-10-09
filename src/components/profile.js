@@ -166,6 +166,7 @@ export function CustomerReservations(props) {
     if(activeTab === "privative") {
       axios.get('https://cowork-paris.000webhostapp.com/index.php/user/privative/'+props.data.user.id)
       .then(res => {
+          console.log(res.data)
           setIsLoading({...isLoading, privative: false})
           setPrivative(res.data)
       })

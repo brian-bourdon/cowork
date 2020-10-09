@@ -112,7 +112,7 @@ export function CardsEvenement(props) {
     return (
       <>
         <Card>
-          <Card.Img variant="top" src={img} />
+          <Card.Img variant="top" src={process.env.PUBLIC_URL + '/' + img} />
           <Card.Body>
             <Card.Title>{props.infos.nom}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">{space}</Card.Subtitle>

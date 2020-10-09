@@ -61,7 +61,7 @@ export function CardsSpace(props) {
   return (
     <>
       <Card className='h-100' style={{ width: '18rem' }} id={props.data.id}>
-        <Card.Img variant="top" src={img} fluid/>
+        <Card.Img variant="top" src={process.env.PUBLIC_URL + '/' + img} />
         <Card.Body>
           <Card.Title>{props.data.title}</Card.Title>
           <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
@@ -69,7 +69,7 @@ export function CardsSpace(props) {
           </Card.Text>
         </Card.Body>
         <Card.Footer>
-          <Button variant="primary" onClick={()=>props.data.handleReservation(true, props.data.title, props.data.id)}>
+          <Button key={props.data.id} variant="primary" onClick={()=>props.data.handleReservation(true, props.data.title, props.data.id)}>
             Réserver
           </Button>
         </Card.Footer>

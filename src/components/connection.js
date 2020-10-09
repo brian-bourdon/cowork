@@ -5,6 +5,7 @@ export function Connection(email, pwd, setIsLoading, handleClose, handleUser) {
     setIsLoading(true)
     axios.get('https://cowork-paris.000webhostapp.com/index.php/user/show/'+email)
     .then(res => {
+      console.log(res.data)
       setIsLoading(false)
       if(res.data.pwd === pwd) {
         for (const key in res.data) {
