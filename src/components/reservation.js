@@ -17,7 +17,7 @@ const DateTimePicker = (props) => {
       setHours(setMinutes(new Date(), 0), moment(new Date()).format('m') !== "0" ? moment(new Date()).add(type, 'hours').format('H') :  moment(new Date()).format('H'))
     );
     const CustomInput = ({ value, onClick }) => (
-         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value}/>
+         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value} style={{borderColor: !props.data.isLoadingPrivateDisponible ? (props.data.privateDisponible.status ? "green" : "red") : null, borderWidth:  !props.data.isLoadingPrivateDisponible && "2px"}}/>
       );
     const handleDate = (date) => {
         setStartDate(date)
@@ -70,8 +70,8 @@ export function ReservationModal(props) {
     }
 
     const handleFormPrivateSpace = (event) => {
-        setFormPrivateSpace(event.target.value)
         setIsLoadingPrivateDisponible(true)
+        setFormPrivateSpace(event.target.value)
     }
 
     const handleFormEquipment = (event) => {
@@ -93,10 +93,12 @@ export function ReservationModal(props) {
     }
 
     const handleReservation = (v) => {
+        setIsLoadingPrivateDisponible(true)
         setReservation(v)
     }
     
     useEffect(() => {
+        console.log("use_effect")
         if(type === "1" || (type === "2" && isLoadingSpace)) {
             axios.get('https://cowork-paris.000webhostapp.com/index.php/PrivativeSpace/'+ props.data.idSpace)
             .then(res => {
@@ -127,17 +129,20 @@ export function ReservationModal(props) {
             })
             .catch(e => setIsLoadingMeal(false))
         }
-        if(type === "1" && isLoadingPrivateDisponible) {
+        if(type === "1" && isLoadingPrivateDisponible && formPrivateSpace) {
+            console.log("ok")
+            console.log(type)
+            console.log(isLoadingPrivateDisponible)
             axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace/disponible/'+formPrivateSpace+"/"+dateTimeStart.replace(" ", "+")+"/"+dateTimeEnd.replace(" ", "+"))
             .then(res => {
                 console.log(res.data)
+                setPrivateDisponible(res.data)
                 setIsLoadingPrivateDisponible(false)
-                setPrivateDisponible([...res.data].shift())
             })
             .catch(e => setIsLoadingPrivateDisponible(false))
         }
 
-      }, [props.data.idSpace, type, dateTimeStart, dateTimeEnd, formPrivateSpace]);
+      }, [props.data.idSpace, isLoadingPrivateDisponible, formPrivateSpace]);
 
     return(
         <>
@@ -174,11 +179,11 @@ export function ReservationModal(props) {
             {((type === "1" && !isLoadingSpace) || (type === "2" && !isLoadingSpace && !isLoadingEquipment)) && <>
             <Form.Group>
                 <Form.Label>Date et heure de début</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible}}/></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible}} /></Form.Group>
             </Form.Group>
             <Form.Group>
                 <Form.Label>Date et heure de fin</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoadingPrivateDisponible}}/></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible}} /></Form.Group>
             </Form.Group>
             </>}
             {type === "3" && !isLoadingMeal && 
@@ -206,12 +211,15 @@ export function ReservationModal(props) {
                 /></div>
             }
             </Form>
+            {!isLoadingPrivateDisponible && <div className="text-center pb-3"><Alert className="mb-0" variant={privateDisponible.status ? "info" : "danger"}>
+                {privateDisponible.msg}
+            </Alert></div>}
             {reservation !== null && <div className="text-center"><Alert className="mb-0" variant={reservation ? "success" : "danger"}>
                 {reservation ? "Réservation réussie !" : "La réservation a échoué !"}
             </Alert></div>}
           </Modal.Body>
           <Modal.Footer className="justify-content-center">
-            {!isLoadingPrivateDisponible && <Button variant="success" onClick={() => Reservation({type, formPrivateSpace, dateTimeStart, dateTimeEnd}, handleReservation, props.data.user)} disabled={!privateDisponible}>
+            {!isLoadingPrivateDisponible && <Button variant="success" onClick={() => Reservation({type, formPrivateSpace, dateTimeStart, dateTimeEnd}, handleReservation, props.data.user)} disabled={!privateDisponible.status}>
               Réserver
             </Button>}
             {isLoadingPrivateDisponible && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true" />}
