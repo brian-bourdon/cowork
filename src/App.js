@@ -60,6 +60,7 @@ function App() {
     showHome(v)
     showCustomerReservations(!v)
     showEvenement(!v)
+    showProfile(!v)
   }
   const handleSpace = (v) => {
     setSpace(v)
@@ -81,6 +82,7 @@ function App() {
   const handleUser = (v) => {
     if(v === null) setSpace(null)
     if(v !== {} && v !== user) {
+      console.log(v)
       setUser(v)
     }
   }
