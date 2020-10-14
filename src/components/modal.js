@@ -96,11 +96,11 @@ export function ConnectionModal(props) {
           <Form>
             <Form.Group controlId="nom">
               <Form.Label>Nom</Form.Label>
-              <Form.Control type="text" placeholder="Nom" onKeyUp={handleFirstname.bind(this)} required/>
+              <Form.Control type="text" placeholder="Nom" onKeyUp={handleLastname.bind(this)} required/>
             </Form.Group>
             <Form.Group controlId="prenom">
               <Form.Label>Prenom</Form.Label>
-              <Form.Control type="text" placeholder="Prenom" onKeyUp={handleLastname.bind(this)} required/>
+              <Form.Control type="text" placeholder="Prenom" onKeyUp={handleFirstname.bind(this)} required/>
             </Form.Group>
             <Form.Group controlId="prenom">
               <Form.Label>Date de naissance</Form.Label>
@@ -134,11 +134,11 @@ export function ConnectionModal(props) {
       <Form>
         <Form.Group controlId="nom">
           <Form.Label>Nom</Form.Label>
-          <Form.Control type="text" placeholder="Nom" onKeyUp={handleFirstname.bind(this)} required/>
+          <Form.Control type="text" placeholder="Nom" onKeyUp={handleLastname.bind(this)} required/>
         </Form.Group>
         <Form.Group controlId="prenom">
           <Form.Label>Prenom</Form.Label>
-          <Form.Control type="text" placeholder="prenom" onKeyUp={handleLastname.bind(this)} required/>
+          <Form.Control type="text" placeholder="prenom" onKeyUp={handleFirstname.bind(this)} required/>
         </Form.Group>
         <Form.Group controlId="prenom">
           <Form.Label>Date de naissance</Form.Label>

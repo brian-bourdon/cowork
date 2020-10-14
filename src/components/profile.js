@@ -5,6 +5,7 @@ import { getCookie } from '../util/util'
 import axios from 'axios'
 import moment from 'moment';
 import 'moment/locale/fr';
+import {deleteCookie} from '../util/util';
 
 function ProfileForm(props) {
     const[firstname, setFirstname] = useState(getCookie("firstname"))
@@ -40,11 +41,11 @@ function ProfileForm(props) {
         <Form>
             <Form.Group controlId="nom">
               <Form.Label className="float-left">Nom:</Form.Label>
-              <Form.Control type="text" defaultValue={getCookie("firstname")} onKeyUp={handleFirstname.bind(this)} required/>
+              <Form.Control type="text" defaultValue={getCookie("lastname")} onKeyUp={handleLastname.bind(this)} required/>
             </Form.Group>
             <Form.Group controlId="prenom">
               <Form.Label className="float-left">Prenom</Form.Label>
-              <Form.Control type="text" defaultValue={getCookie("lastname")} onKeyUp={handleLastname.bind(this)} required/>
+              <Form.Control type="text" defaultValue={getCookie("firstname")} onKeyUp={handleFirstname.bind(this)} required/>
             </Form.Group>
             <Form.Group controlId="prenom">
               <Form.Label className="float-left">Date de naissance</Form.Label>
@@ -78,7 +79,7 @@ function AbonnementTab(props) {
             {props.data.abonnement.text}
           </p>
           <p>
-              {props.data.abonnement.id_abonnement !== "1" && <Button variant="danger" size="lg" onClick={() => Resiliation(props.data.abonnement.id, props.data.setIsDelete, setIsLoadingDelete, props.data.setIsLoading, props.data.isLoading)}>
+              {props.data.abonnement.id_abonnement !== "1" && <Button variant="danger" size="lg" onClick={() => Resiliation(props.data.abonnement.id, props.data.setIsDelete, setIsLoadingDelete, props.data.setIsLoading, props.data.isLoading, props.data.user)}>
                 {isLoadingDelete && <Spinner
                   as="span"
                   animation="border"
@@ -95,10 +96,14 @@ function AbonnementTab(props) {
     )
 }
 
-function Resiliation(idResAbonnement, setIsDelete, setIsLoadingDelete, setIsLoading, isLoading) {
+function Resiliation(idResAbonnement, setIsDelete, setIsLoadingDelete, setIsLoading, isLoading, user) {
   setIsLoadingDelete(true)
   axios.get('https://cowork-paris.000webhostapp.com/index.php/ResAbonnement/delete/'+idResAbonnement).then(res => {
     if(res.data[0] === "Res deleted successfully.") {
+      deleteCookie("id_abonnement", "/")
+      let userForCookie = {...user.user}
+      userForCookie["id_abonnement"] = "null"
+      user.handleUser(userForCookie)
       setIsDelete(true)
     }else {
       setIsDelete(false)

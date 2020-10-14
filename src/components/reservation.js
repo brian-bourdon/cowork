@@ -5,7 +5,7 @@ import DatePicker, { registerLocale } from "react-datepicker";
 import setHours from 'date-fns/setHours'
 import setMinutes from 'date-fns/setMinutes'
 import getHours from 'date-fns/setMinutes'
-import fr from "date-fns/locale/fr"; // the locale you want
+import fr from "date-fns/locale/fr";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
 

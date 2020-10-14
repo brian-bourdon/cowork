@@ -15,9 +15,10 @@ import axios from 'axios'
 
 
 function App() {
+  // Ne voir les space que si abonné, pouvoir reserver que si abonné, afficher une cards pour s'abonner dans le home si c'est pas le cas
   let userCookie = null
-  if(validUser({firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd")})) {
-    userCookie = {id: getCookie("id"), firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd")}
+  if(validUser({firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie('id_abonnement')})) {
+    userCookie = {id: getCookie("id"), firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie('id_abonnement')}
   }
 
   const [showI, setShowI] = useState(false);
@@ -43,7 +44,7 @@ function App() {
 
   const [customerReservations, showCustomerReservations] = useState(false);
   const [evenement, showEvenement] = useState(false);
-
+ 
   const handleEvenements = () => {
     showEvenement(true)
     profile && showProfile(false)
@@ -104,7 +105,17 @@ function App() {
           <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations, handleEvenements}}/>
           <main className="p-3">
             <Row className={"justify-content-lg-center"}>
-              {home && !getCookie("id") && 
+              {home && !user && 
+              <>
+                <Col lg="auto">
+                  <CardDeck>
+                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 0}}/>
+                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 1}}/>
+                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 2}}/>
+                  </CardDeck>
+                </Col>
+              </>}
+              {home && user && (user.id_abonnement === "1" || user.id_abonnement === "null") &&
               <>
                 <Col lg="auto">
                   <CardDeck>
@@ -115,7 +126,7 @@ function App() {
                 </Col>
               </>}
               <Col lg="8">
-                {home && getCookie("id") && !space && <Spinner
+                {home && user && user.id_abonnement !== "null" && user.id_abonnement !== "1" && !space && <Spinner
                   as="span"
                   animation="border"
                   size="sm"
@@ -127,7 +138,7 @@ function App() {
                 <Row>
                 <CardDeck>
                   <Row>
-                  {home && getCookie("id") && space && space.map(s => 
+                  {home && user && user.id_abonnement !== "null" && user.id_abonnement !== "1" && space && space.map(s => 
                     <Col lg="4 pb-3">
                       <CardsSpace key={s.id} data={{title: s.nom, id: s.id, handleReservation: handleReservation}}/>
                     </Col>)}
@@ -138,19 +149,19 @@ function App() {
               </Col>
               
             </Row>
-            {profile && getCookie("id") && 
+            {profile && user && 
             <Row>
               <Col lg="12">
                 <ProfileTab user={{handleUser: handleUser, user: user}}/>
               </Col>
             </Row>}
-            {customerReservations && getCookie("id") && 
+            {customerReservations && user && 
             <Row>
               <Col lg="12">
                 <CustomerReservations data={{user}}/>
               </Col>
             </Row>}
-            {evenement && getCookie("id") && 
+            {evenement && user && 
             <Row>
               <Col lg="auto">
                 <EvenemenentWrapper data={{evenement, user}}/>
