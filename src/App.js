@@ -13,10 +13,11 @@ import {ReservationModal} from './components/reservation';
 import {EvenemenentWrapper} from './components/evenement';
 import axios from 'axios'
 
+
 function App() {
   let userCookie = null
-  if(validUser({firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie("id_abonnement")})) {
-    userCookie = {id: getCookie("id"), firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd"), id_abonnement: getCookie("id_abonnement") === "null" ? null : getCookie("id_abonnmenent")}
+  if(validUser({firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd")})) {
+    userCookie = {id: getCookie("id"), firstname: getCookie("firstname"), lastname: getCookie("lastname"), date_naissance: getCookie("date_naissance"), email: getCookie("email"), pwd: getCookie("pwd")}
   }
 
   const [showI, setShowI] = useState(false);
@@ -89,6 +90,8 @@ function App() {
   
   useEffect(() => {
     document.title = "Co'work"
+    console.log(home)
+    console.log(user)
     if(home && user) axios.get('https://cowork-paris.000webhostapp.com/index.php/space').then(res => handleSpace(res.data)).catch(err => console.log(err))
  }, [user, home]);
  
@@ -105,9 +108,9 @@ function App() {
               <>
                 <Col lg="auto">
                   <CardDeck>
-                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 1}}/>
-                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 2}}/>
-                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 3}}/>
+                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 0}}/>
+                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 1}}/>
+                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 2}}/>
                   </CardDeck>
                 </Col>
               </>}

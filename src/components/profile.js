@@ -1,8 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner} from 'react-bootstrap'
+import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner, Alert} from 'react-bootstrap'
 import {submitModification} from '../components/inscription'
 import { getCookie } from '../util/util'
 import axios from 'axios'
+import moment from 'moment';
+import 'moment/locale/fr';
 
 function ProfileForm(props) {
     const[firstname, setFirstname] = useState(getCookie("firstname"))
@@ -66,43 +68,119 @@ function ProfileForm(props) {
 }
 
 function AbonnementTab(props) {
-    let abonnement = ""
-    if(props.user.user.id_abonnement === null) abonnement = "Aucun abonnement en cours"
-    else if(props.user.user.id_abonnement === "1") abonnement = "Abonnement simple 12 mois sans engagement"
-    else if(props.user.user.id_abonnement === "2") abonnement = "Abonnement simple sans engagement"
-    else if(props.user.user.id_abonnement === "3") abonnement = "Abonnement résident 8 mois sans engagement"
-    else if(props.user.user.id_abonnement === "4") abonnement = "Abonnement résident sans engagement"
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false)
+  console.log(props)
     return(
+      <>
         <Jumbotron>
-        <h1>{abonnement}</h1>
-        <p>
-            This is a simple hero unit, a simple jumbotron-style component for calling
-            extra attention to featured content or information.
-        </p>
-        <p>
-            <Button variant="danger" size="lg">Résilier</Button>
-        </p>
+          <h3>{props.data.abonnement.nom}</h3>
+          <p>
+            {props.data.abonnement.text}
+          </p>
+          <p>
+              {props.data.abonnement.id_abonnement !== "1" && <Button variant="danger" size="lg" onClick={() => Resiliation(props.data.abonnement.id, props.data.setIsDelete, setIsLoadingDelete, props.data.setIsLoading, props.data.isLoading)}>
+                {isLoadingDelete && <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                  className="pr-2"
+                />}
+                {!isLoadingDelete && "Résilier"}
+              </Button>}
+          </p>
         </Jumbotron>
- 
-        
+        </>
     )
 }
 
+function Resiliation(idResAbonnement, setIsDelete, setIsLoadingDelete, setIsLoading, isLoading) {
+  setIsLoadingDelete(true)
+  axios.get('https://cowork-paris.000webhostapp.com/index.php/ResAbonnement/delete/'+idResAbonnement).then(res => {
+    if(res.data[0] === "Res deleted successfully.") {
+      setIsDelete(true)
+    }else {
+      setIsDelete(false)
+    }
+    setIsLoadingDelete(false)
+    setIsLoading({...isLoading, abonnement: true})
+  }
+  ).catch(err => console.log(err))
+}
+
 export function ProfileTab(props) {
-  //console.log(props.user)
+  const [activeTab, setActiveTab] = useState("profile")
+  const [abonnement, setAbonnement] = useState(null)
+  const [isLoading, setIsLoading] = useState({profile: true, abonnement: true})
+  const [isDelete, setIsDelete] = useState(null)
+
+  const handleSelect = (tab) => {
+    switch(tab) {
+      case "profile" :
+        setIsLoading({...isLoading, abonnement: true})
+        break;
+      case "abonnement" :
+        setIsLoading({...isLoading, profile: true})
+        break;
+    }
+    setActiveTab(tab)
+  }
+  
+    useEffect(() => {
+      if(activeTab === "abonnement") {
+        axios.get('https://cowork-paris.000webhostapp.com/index.php/user/abonnement/'+props.user.user.id)
+        .then(
+          res => {
+            if(res.data.length == 1) {
+              axios.get('https://cowork-paris.000webhostapp.com/index.php/abonnement/'+res.data.map(v => v.id_abonnement))
+            .then(resA => {
+              let text = ""
+              if(res.data[0].id_abonnement === "2") {
+                text = "Prend fin le " +  moment(new Date(res.data[0].created_at)).add(1, 'years').locale('fr').format('LLLL')
+              }
+              else if(res.data[0].id_abonnement === "4") {
+                text = "Prend fin le " +  moment(new Date(res.data[0].created_at)).add(8, 'months').locale('fr').format('LLLL')
+              }
+              console.log(text)
+              setAbonnement({...res.data[0], nom: resA.data.nom, text: text})
+              setIsLoading({...isLoading, abonnement: false})
+            })
+            .catch(err => console.log(err))
+            } else {
+              setAbonnement({id_abonnement: "1", nom: "Sans abonnement", text: ""})
+              setIsLoading({...isLoading, abonnement: false})
+            }
+          })
+        .catch(err => console.log(err))
+      }
+   }, [activeTab, isDelete]);
+
   return(
-    <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
-    <Tab eventKey="profile" title="Profil">
+    <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example" onSelect={(e) => handleSelect(e)}>
+    <Tab eventKey="profile" title="Profil" name="profile">
         <Row>
             <Col lg="6" className="pt-3">
                 <ProfileForm user={props.user}/>
             </Col>
         </Row>
     </Tab>
-    <Tab eventKey="abonnement" title="Mon abonnement">
+    <Tab eventKey="abonnement" title="Mon abonnement" name="abonnement">
         <Row>
             <Col lg="6" className="pt-3">
-                <AbonnementTab user={props.user}/>
+              {isDelete !== null && <Alert className="mb-0" variant={isDelete ? "success" : "danger"}>
+              {isDelete ? "L'abonnement a bien été résillié" : "L'abonnement n'a pas pu être résilié"}
+              </Alert>}
+              {!isLoading.abonnement && <AbonnementTab data={{user: props.user, abonnement, setIsDelete, setIsLoading, isLoading}}/>}
+              {isLoading.abonnement && <div className="text-center"><Spinner
+              as="span"
+              animation="border"
+              size="sm"
+              variant="primary"
+              role="status"
+              aria-hidden="true"
+              style={{width: "5em", height: "5em"}}
+              /></div>}
             </Col>
         </Row>
     </Tab>

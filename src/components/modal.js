@@ -93,7 +93,7 @@ export function ConnectionModal(props) {
           <Modal.Title>Inscription</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {successInscription === null && <Form>
+          <Form>
             <Form.Group controlId="nom">
               <Form.Label>Nom</Form.Label>
               <Form.Control type="text" placeholder="Nom" onKeyUp={handleFirstname.bind(this)} required/>
@@ -115,11 +115,11 @@ export function ConnectionModal(props) {
               <Form.Control type="password" placeholder="Mot de passe" onKeyUp={handlePwd.bind(this)} required/>
             </Form.Group>
             <div className="text-center pt-3">
-              <Button className="mb-3" variant="primary" onClick={() => submitInscription({firstname, lastname, date_naissance, email, pwd}, props.data.handleUser, handleInscription)}>
+              <Button className="mb-3" variant="primary" onClick={() => submitInscription({firstname, lastname, date_naissance, email, pwd}, handleInscription, props.data.handleClose)}>
                 S'inscrire
               </Button>
             </div>
-          </Form>}
+          </Form>
           {successInscription !== null && <div className="text-center"><Alert className="mb-0" variant={successInscription ? "success" : "danger"}>
                 {successInscription ? "Inscription réussie, vous pouvez maintenant vous connecter" : "L'inscription a échoué"}
             </Alert></div>}
@@ -128,10 +128,10 @@ export function ConnectionModal(props) {
     );
   }
 
-  export function SubscriptionModal(type, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription) {
+  export function SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription) {
     return(
       <>
-      {successSubscription === null && <Form>
+      <Form>
         <Form.Group controlId="nom">
           <Form.Label>Nom</Form.Label>
           <Form.Control type="text" placeholder="Nom" onKeyUp={handleFirstname.bind(this)} required/>
@@ -154,12 +154,12 @@ export function ConnectionModal(props) {
         </Form.Group>
         <Form.Group controlId="exampleForm.ControlSelect1">
           <Form.Label>Abonnement</Form.Label>
-          <Form.Control as="select" defaultValue={type} onChange={handleSub.bind(this)}>
-            <option value="null">Sans abonnement</option>
-            <option value="1">Abonnement simple 12 mois sans engagement</option>
-            <option value="2">Abonnement simple sans engagement</option>
-            <option value="3">Abonnement résident 8 mois sans engagement</option>
-            <option value="4">Abonnement résident sans engagement</option>
+          <Form.Control as="select" defaultValue={defV} onChange={handleSub.bind(this)}>
+            <option value="1">Sans abonnement</option>
+            <option value="2">Abonnement simple 12 mois sans engagement</option>
+            <option value="3">Abonnement simple sans engagement</option>
+            <option value="4">Abonnement résident 8 mois sans engagement</option>
+            <option value="5">Abonnement résident sans engagement</option>
           </Form.Control>
         </Form.Group>
         <div className="text-center pt-3">
@@ -167,7 +167,7 @@ export function ConnectionModal(props) {
             Souscrire
           </Button>
         </div>
-      </Form>}
+      </Form>
       {successSubscription !== null && <div className="text-center"><Alert className="mb-0" variant={successSubscription ? "success" : "danger"}>
       {successSubscription ? "Souscription réussie, vous pouvez maintenant vous connecter" : "La souscription a échoué"}
       </Alert></div>}
@@ -176,12 +176,17 @@ export function ConnectionModal(props) {
   }
   
   export function DetailsModal(props) {
+    let defV = 1
+    if(props.infos.type === 0) defV = 1
+    else if(props.infos.type === 1) defV = 2
+    else defV = 4
+
     const[firstname, setFirstname] = useState("")
     const[lastname, setLastname] = useState("")
     const[date_naissance, setDate_naissance] = useState("")
     const[email, setEmail] = useState("")
     const[pwd, setPwd] = useState("")
-    const[id_abonnement, setAbonnement] = useState(props.infos.type)
+    const[id_abonnement, setAbonnement] = useState(defV)
     const[successSubscription, setSuccessSubscription] = useState(null)
   
     const handleFirstname = (event) => {
@@ -218,7 +223,7 @@ export function ConnectionModal(props) {
     }
   
     const handleSubscription = () => {
-      submitInscription({firstname, lastname, date_naissance, email, pwd, id_abonnement}, handleSuccessSubscription)
+      submitInscription({firstname, lastname, date_naissance, email, pwd, id_abonnement}, handleSuccessSubscription, props.infos.handleClose)
     }
   
     return (
@@ -227,7 +232,7 @@ export function ConnectionModal(props) {
           <Modal.Title>Sans abonnement</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {subModal && SubscriptionModal(props.infos.type, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription)}
+          {subModal && SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription)}
           {!subModal && props.infos.text}
           {!subModal && <div className="text-center pt-3">
             <Button variant="success" onClick={handleSubscriptionModal}>

@@ -1,6 +1,6 @@
 import {isEmpty, getCookie, setCookie} from '../util/util';
 
-export function submitInscription(user, handleUser, handleInscription) {
+export function submitInscription(user, handleInscription, handleClose) {
     console.log(user)
     let inscription = false
     if(validUser(user)) {
@@ -17,7 +17,10 @@ export function submitInscription(user, handleUser, handleInscription) {
     formData.append('date_naissance', user.date_naissance);
     formData.append('email', user.email);
     formData.append('pwd', user.pwd);
-    if(user.id_abonnement !== undefined) formData.append('id_abonnement', user.id_abonnement);
+    if(user.id_abonnement !== undefined && user.id_abonnement !== "1") {
+      formData.append('id_abonnement', user.id_abonnement);
+      formData.append('id', user.id);
+    }
     
     fetch('https://cowork-paris.000webhostapp.com/index.php/user',
         {
@@ -29,12 +32,11 @@ export function submitInscription(user, handleUser, handleInscription) {
           console.log(res)
         if(res[0] === "User created successfully.") {
             inscription = true
+            handleInscription(true)
+            handleClose()
         }
-        handleUser(user)
-        handleInscription(user) // faut mettre true, a revoir
         })
         .catch(e => {
-            handleUser(inscription)
             handleInscription(false)
         })
     }
