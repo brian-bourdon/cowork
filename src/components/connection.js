@@ -7,6 +7,7 @@ export function Connection(email, pwd, setIsLoading, handleClose, handleUser) {
     .then(res => {
       console.log(res.data)
       if(res.data.pwd === pwd) {
+        console.log("nnnn")
         axios.get('https://cowork-paris.000webhostapp.com/index.php/user/abonnement/'+res.data.id).then(resA => {
           if(resA.data.length === 1) res.data["id_abonnement"] = resA.data[0].id_abonnement
           else res.data["id_abonnement"] = "null"

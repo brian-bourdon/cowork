@@ -8,11 +8,17 @@ import 'moment/locale/fr';
 import {deleteCookie} from '../util/util';
 
 function ProfileForm(props) {
+  console.log(props.user.user)
     const[firstname, setFirstname] = useState(getCookie("firstname"))
     const[lastname, setLastname] = useState(getCookie("lastname"))
     const[date_naissance, setDate_naissance] = useState(getCookie("date_naissance"))
     const[email, setEmail] = useState(getCookie("email"))
     const[pwd, setPwd] = useState(getCookie("pwd"))
+    const[successModification, setSuccessModification] = useState(null)
+
+    const handleSuccessModification = (v) => {
+      setSuccessModification(v)
+    }
   
     const handleFirstname = (event) => {
       
@@ -35,7 +41,6 @@ function ProfileForm(props) {
       setPwd(event.target.value)
     }
     const user = { ...props.user.user }
-    delete user.id_abonnement
 
     return (
         <Form>
@@ -60,10 +65,13 @@ function ProfileForm(props) {
               <Form.Control type="password" defaultValue={getCookie("firstname")} onKeyUp={handlePwd.bind(this)} required/>
             </Form.Group>
             <div className="text-center pt-3">
-              <Button disabled={JSON.stringify({firstname, lastname, date_naissance, email, pwd}) === JSON.stringify(user)} className="mb-3" variant="primary" onClick={() => submitModification({firstname, lastname, date_naissance, email, pwd}, props.user.handleUser)}>
+              <Button disabled={JSON.stringify({firstname, lastname, date_naissance, email, pwd}) === JSON.stringify(user)} className="mb-3" variant="primary" onClick={() => submitModification({firstname, lastname, date_naissance, email, pwd}, props.user.user, props.user.handleUser, handleSuccessModification)}>
                 Modifier
               </Button>
             </div>
+            {successModification !== null && <div className="text-center"><Alert className="mb-0" variant={successModification ? "success" : "danger"}>
+            {successModification ? "Modification effectuée(s)" : "La modification a échoué"}
+            </Alert></div>}
           </Form>
     )
 }

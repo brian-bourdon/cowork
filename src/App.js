@@ -1,7 +1,7 @@
 import React from 'react';
 import {useState, useEffect} from 'react'
 import './App.css';
-import {Container, Row, Col, Spinner, CardDeck} from 'react-bootstrap'
+import {Container, Row, Col, Spinner, CardDeck, Alert} from 'react-bootstrap'
 import {InscriptionModal, ConnectionModal} from './components/modal'
 import {Cards, CardsSpace} from './components/cards'
 import {Header} from './components/header'
@@ -41,6 +41,8 @@ function App() {
   const handleCloseR = () => setReservation(false);
   const [nomSpace, setNomSpace] = useState("")
   const [idSpace, setIdSpace] = useState("")
+
+  const [updatedUser, setUpdatedUser] = useState(null)
 
   const [customerReservations, showCustomerReservations] = useState(false);
   const [evenement, showEvenement] = useState(false);
@@ -83,7 +85,8 @@ function App() {
 
   const handleUser = (v) => {
     if(v === null) setSpace(null)
-    if(v !== {} && v !== user) {
+    if(v !== {} && v !== false) {
+      console.log(user)
       console.log(v)
       setUser(v)
     }
@@ -102,26 +105,46 @@ function App() {
         {showReservation && <ReservationModal data={{show: showReservation, handleClose: handleCloseR, nom: nomSpace, idSpace: idSpace, test: true, user: user}}/>}
         {showI && <InscriptionModal data={{show: showI, handleClose: handleCloseI, handleUser: handleUser}} />}
         {showC && <ConnectionModal data={{show: showC, handleClose: handleCloseC, handleUser: handleUser, user: user}}/>}
-          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations, handleEvenements}}/>
+          <Header data={{handleShowI, handleShowC, handleUser, handleProfile, handleHome, handleCustomerReservations, handleEvenements, user}}/>
           <main className="p-3">
             <Row className={"justify-content-lg-center"}>
+              <Col lg="12">
+                {home && user && updatedUser !== null && <div className="text-center pb-3"><Alert className="mb-0" variant={updatedUser ? "info" : "danger"} dismissible>
+                {updatedUser ? "Souscription réussie !" : "La souscription a échouée"}
+                </Alert></div>}
+              </Col>
               {home && !user && 
               <>
                 <Col lg="auto">
+                  <Alert className="mt-2 mb-5" variant="primary">
+                    <Alert.Heading>Bienvenue sur CO'Work !</Alert.Heading>
+                    <p>
+                      Co'Work propose six espaces de travail collaboratif à Paris (Bastille,
+                      République, Odéon, Place d'Italie, Ternes et Beaubourg).
+                      Pour quelques euros de l’heure, venez rencontrez d'autres utilisateurs, vous détendre, organiser un rendez-vous,
+                      travailler, accéder à Internet ou profiter de boissons chaudes et froides à volonté. Des
+                      animations et des événements liés aux cultures innovantes rythment aussi la vie des différents espaces. 
+                    </p>
+                    <hr />
+                    <p className="mb-0">
+                      Accessible sans réservation ou abonnement en payant sur place.
+                      Nous vous proposons les abonnements pour profiter au mieux des services, cliquez ci-dessous pour connaires les détails (services, tarifs...)
+                    </p>
+                  </Alert>
                   <CardDeck>
-                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 0}}/>
-                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 1}}/>
-                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 2}}/>
+                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 0, connected: false, user: null, handleUser: null, setUpdatedUser: null, handleSpace: null}}/>
+                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Rejoignez la communauté CO'WORK et bénéficiez de tarifs préférentiels !", type: 1, connected: false, user: null, handleUser: null, setUpdatedUser: null, handleSpace: null}}/>
+                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Rejoignez la communauté CO'WORK et devenez membre résident !", type: 2,  connected: false, user: null, handleUser: null, setUpdatedUser: null, handleSpace: null}}/>
                   </CardDeck>
                 </Col>
               </>}
               {home && user && (user.id_abonnement === "1" || user.id_abonnement === "null") &&
               <>
                 <Col lg="auto">
+                <Alert variant="warning">Vous n'avez aucun abonnement en cours, abonnez vous pour profiter au mieux des services CO'Work</Alert>
                   <CardDeck>
-                    <Cards infos={{text:text_sans_abonnment, title:"Sans abonnement", subtitle:"Payez le temps passé sur place, les consommations sont incluses et à volonté !", type: 0}}/>
-                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Bénéficiez de tarifs préférentiels !", type: 1}}/>
-                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Devenez membre résident !", type: 2}}/>
+                    <Cards infos={{text:text_abonnment_simple, title:"Abonnement simple", subtitle:"Rejoignez la communauté CO'WORK et bénéficiez de tarifs préférentiels !", type: 1, connected: true, user: user, handleUser, setUpdatedUser, handleSpace}}/>
+                    <Cards infos={{text:text_abonnement_residant, title:"Abonnement résident", subtitle:"Rejoignez la communauté CO'WORK et devenez membre résident !", type: 2, connected: true, user: user, handleUser, setUpdatedUser, handleSpace}}/>
                   </CardDeck>
                 </Col>
               </>}

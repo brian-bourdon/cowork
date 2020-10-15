@@ -17,9 +17,9 @@ export function submitInscription(user, handleInscription, handleClose) {
     formData.append('date_naissance', user.date_naissance);
     formData.append('email', user.email);
     formData.append('pwd', user.pwd);
-    if(user.id_abonnement !== undefined && user.id_abonnement !== "1") {
+    if(user.id_abonnement !== undefined && user.id_abonnement !== "1") { // 1 ou "1"
       formData.append('id_abonnement', user.id_abonnement);
-      formData.append('id', user.id);
+      formData.append('id', user.id); // surement inutile
     }
     
     fetch('https://cowork-paris.000webhostapp.com/index.php/user',
@@ -33,7 +33,7 @@ export function submitInscription(user, handleInscription, handleClose) {
         if(res[0] === "User created successfully.") {
             inscription = true
             handleInscription(true)
-            handleClose()
+            //handleClose()
         }
         })
         .catch(e => {
@@ -42,7 +42,8 @@ export function submitInscription(user, handleInscription, handleClose) {
     }
   }
 
-  export function submitModification(user, handleModification) {
+  export function submitModification(user, real_user, handleModification, handleSuccessSubscription) {
+    //console.log(real_user)
     let formData = new FormData();
     let userUpdate = {}
     for (const k in user) {
@@ -52,8 +53,42 @@ export function submitInscription(user, handleInscription, handleClose) {
             formData.append(k, user[k]);
         }
     }
-    
-    fetch('https://cowork-paris.000webhostapp.com/index.php/user/update/'+getCookie("id"),
+    fetch('https://cowork-paris.000webhostapp.com/index.php/user/update/'+real_user.id,
+        {
+            body: formData,
+            method: "post"
+        })
+        .then(res=>res.json())
+        .then(res => {
+            if(res[0] === "User updated successfully.") {
+                console.log(real_user)
+                for (const key in userUpdate) {
+                    setCookie(key, userUpdate[key], 1)
+                 }
+                 handleModification({...userUpdate, id: real_user.id, id_abonnement: real_user.id_abonnement})
+                 handleSuccessSubscription(true)
+            } else {
+              handleSuccessSubscription(false)
+              handleModification(false)
+            }
+        })
+        .catch(e => {
+          handleSuccessSubscription(false)
+          handleModification(false)
+        })
+  }
+
+  export function updateUser(user, real_user, handleUser, setUpdatedUser, handleSpace) {
+    let formData = new FormData();
+    let userUpdate = real_user
+    for (const k in user) {
+        if(user[k].trim() !== "") {
+            console.log(user[k])
+            userUpdate[k] = user[k]
+            formData.append(k, user[k]);
+        }
+    }
+    fetch('https://cowork-paris.000webhostapp.com/index.php/user/update/'+userUpdate.id,
         {
             body: formData,
             method: "post"
@@ -62,13 +97,24 @@ export function submitInscription(user, handleInscription, handleClose) {
         .then(res => {
             if(res[0] === "User updated successfully.") {
                 console.log("ok")
-                for (const key in userUpdate) {
-                    setCookie(key, userUpdate[key], 1)
+                for (const key in user) {
+                    setCookie(key, user[key], 1)
                  }
-                 handleModification(userUpdate)
-            } else handleModification(false)
+                 console.log(userUpdate)
+                 handleUser(userUpdate)
+                 handleSpace(null)
+                 setUpdatedUser(true)
+            } else {
+              handleUser(false)
+              handleSpace(null)
+              setUpdatedUser(false)
+            }
         })
-        .catch(e => handleModification(false))
+        .catch(e => {
+          handleUser(false)
+          handleSpace(null)
+          setUpdatedUser(false)
+        })
   }
 
   export function validUser(user) {

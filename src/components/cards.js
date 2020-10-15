@@ -10,27 +10,55 @@ export function Cards(props) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-  
+    let text = ""
+    if(props.infos.type === 0) {
+      text = (<>
+        <div className="font-weight-bold pb-1 pt-2">Tarifs par personne :</div>
+        Première heure : 5€<br/>
+        ½ heure suivante : 2,5€<br/>
+        Journée (5 heures et plus) : 24€<br/>
+        <div className="font-weight-bold pb-1 pt-2">Réduction étudiante :</div>
+        Journée (5 heures et plus) :<br/>
+        20€</>)
+    }
+    else if(props.infos.type === 1) {
+      text = (<>
+        <div className="font-weight-bold pb-1 pt-2">Tarifs membre par personne :</div>
+        Première heure : 4€<br/>
+        ½ heure suivante : 2€<br/>
+        Journée (5 heures et plus) : 20€<br/>
+        <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement :</div>
+        24€ TTC /mois<br/>
+        <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement 12 mois:</div>
+        20€ TTC /mois<br/>
+        </>)
+    }
+    else if(props.infos.type === 2) {
+      text = (<>
+        <div className="font-weight-bold pb-5 pt-2">Bénéficiez d'un accès en illimité 7/7j</div>
+        <div className="font-weight-bold pb-1">Devenir membre résident sans engagement :</div>
+        300 TTC /mois<br/>
+        <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement 12 mois:</div>
+        252€ TTC /mois<br/>
+        </>)
+    }
     return (
       <>
         <Card>
-          <Card.Img variant="top" src={"holder.js/100px160"} />
           <Card.Body>
             <Card.Title>{props.infos.title}</Card.Title>
             <Card.Subtitle className="mb-2 text-muted">{props.infos.subtitle}</Card.Subtitle>
             <Card.Text>
-              This is a wider card with supporting text below as a natural lead-in to
-              additional content. This content is a little bit longer.
-            </Card.Text>
-            <Button variant="primary" onClick={handleShow}>
-              En savoir plus
-            </Button>
+              {text}
+            </Card.Text>   
           </Card.Body>
           <Card.Footer>
-            <small className="text-muted">Last updated 3 mins ago</small>
+          <Button variant="primary" onClick={handleShow}>
+              En savoir plus
+            </Button>
           </Card.Footer>
         </Card>
-        <DetailsModal infos={{show: show, handleClose: handleClose, text: props.infos.text, btnText: "S'inscrire", type: props.infos.type}}/>
+        {show && <DetailsModal infos={{show: show, handleClose: handleClose, text: props.infos.text, btnText: "S'inscrire", type: props.infos.type, connected: props.infos.connected, subtitle: props.infos.subtitle, user: props.infos.user, handleUser: props.infos.handleUser, setUpdatedUser: props.infos.setUpdatedUser, handleSpace: props.infos.handleSpace}}/>}
       </>
     );
   }
