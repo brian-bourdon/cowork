@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner, Alert} from 'react-bootstrap'
 import {submitModification} from '../components/inscription'
-import { getCookie } from '../util/util'
+import { getCookie, setCookie } from '../util/util'
 import axios from 'axios'
 import moment from 'moment';
 import 'moment/locale/fr';
@@ -108,7 +108,7 @@ function Resiliation(idResAbonnement, setIsDelete, setIsLoadingDelete, setIsLoad
   setIsLoadingDelete(true)
   axios.get('https://cowork-paris.000webhostapp.com/index.php/ResAbonnement/delete/'+idResAbonnement).then(res => {
     if(res.data[0] === "Res deleted successfully.") {
-      deleteCookie("id_abonnement", "/")
+      setCookie("id_abonnement", "null", 1)
       let userForCookie = {...user.user}
       userForCookie["id_abonnement"] = "null"
       user.handleUser(userForCookie)

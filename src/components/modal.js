@@ -128,7 +128,7 @@ export function ConnectionModal(props) {
     );
   }
 
-  export function SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription, connected, user) {
+  export function SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription, connected, user, type) {
     let user2 = {...user}
     return(
       <>
@@ -156,11 +156,11 @@ export function ConnectionModal(props) {
         {!successSubscription && <Form.Group controlId="exampleForm.ControlSelect1">
           <Form.Label>Abonnement</Form.Label>
           <Form.Control as="select" defaultValue={defV} onChange={handleSub.bind(this)}>
-            {connected && <option value="1">Sans abonnement</option>}
-            <option value="2">Abonnement simple 12 mois sans engagement</option>
-            <option value="3">Abonnement simple sans engagement</option>
-            <option value="4">Abonnement résident 8 mois sans engagement</option>
-            <option value="5">Abonnement résident sans engagement</option>
+            {!connected && type === 0 && <option value="1">Sans abonnement</option>}
+            {type === 1 && <option value="2">Abonnement simple 12 mois sans engagement</option>}
+            {type === 1 && <option value="3">Abonnement simple sans engagement</option>}
+            {type === 2 && <option value="4">Abonnement résident 8 mois sans engagement</option>}
+            {type === 2 && <option value="5">Abonnement résident sans engagement</option>}
           </Form.Control>
         </Form.Group>}
         {!successSubscription && <div className="text-center pt-3">
@@ -231,10 +231,10 @@ export function ConnectionModal(props) {
     return (
       <Modal show={props.infos.show} onHide={props.infos.handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Sans abonnement</Modal.Title>
+          <Modal.Title>{props.infos.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {subModal && SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription, props.infos.connected, props.infos.user)}
+          {subModal && SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription, props.infos.connected, props.infos.user, props.infos.type)}
           {!subModal && props.infos.text}
           {!subModal && <div className="text-center pt-3">
             <Button variant="success" onClick={handleSubscriptionModal}>

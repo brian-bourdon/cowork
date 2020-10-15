@@ -65,6 +65,7 @@ function App() {
     showCustomerReservations(!v)
     showEvenement(!v)
     showProfile(!v)
+    setUpdatedUser(null)
   }
   const handleSpace = (v) => {
     setSpace(v)
