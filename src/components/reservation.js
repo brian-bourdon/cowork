@@ -11,13 +11,13 @@ import moment from 'moment';
 
 const DateTimePicker = (props) => {
     registerLocale("fr", fr);
-    let type = 1
-    props.data.type === "start" ? type = 1 : type = 2
-    const [startDate, setStartDate] = useState(
-      setHours(setMinutes(new Date(), 0), moment(new Date()).format('m') !== "0" ? moment(new Date()).add(type, 'hours').format('H') :  moment(new Date()).format('H'))
-    );
+    const [startDate, setStartDate] = useState(null);
+    const [excludeTime, setExcludeTime] = useState([]);
+
+    const[minTime, setMinTime] = useState(null)
+    const[maxTime, setMaxTime] = useState(null)
     const CustomInput = ({ value, onClick }) => (
-         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value} style={{borderColor: props.data.type === "1" ? (!props.data.isLoadingPrivateDisponible ? (props.data.privateDisponible.status ? "green" : "red") : null) : null, borderWidth:  props.data.type === "1" && !props.data.isLoadingPrivateDisponible && "2px"}}/>
+         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value} style={{borderColor: props.data.typeRes === "1" ? (!props.data.isLoadingPrivateDisponible ? (props.data.privateDisponible.status ? "green" : "red") : null) : null, borderWidth:  props.data.typeRes === "1" && !props.data.isLoadingPrivateDisponible && "2px"}}/>
       );
     const handleDate = (date) => {
         setStartDate(date)
@@ -25,6 +25,56 @@ const DateTimePicker = (props) => {
         else if(props.data.handleDateTimeEnd) props.data.handleDateTimeEnd(date)
         props.data.setIsLoadingPrivateDisponible(true)
     }
+    useEffect(() => {
+        if(!startDate) {
+            console.log(props.data.dateTimeStart)
+            let date
+            props.data.type === "start" ? date = setHours(setMinutes(new Date(), 0), moment(new Date(props.data.dateTimeStart)).format("H")) : date = setHours(setMinutes(new Date(), 0), moment(new Date(props.data.dateTimeEnd)).format("H"))
+            setStartDate(date)
+
+            const semaine = ["lundi","mardi","mercredi","jeudi"]
+            const weekend = ["samedi","dimanche"]
+            if(semaine.includes(moment(new Date()).format("dddd"))) {
+                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_start.split(":")[0]))
+                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_end.split(':')[0]))
+            }
+            else if(weekend.includes(moment(new Date()).format("dddd"))) {
+                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_start.split(":")[0]))
+                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_end.split(':')[0]))
+            }
+            else {
+                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_start.split(":")[0]))
+                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_end.split(':')[0]))
+            }
+        }
+        if((startDate || props.data.reservation) && (moment(new Date(props.data.dateTimeStart)).format("YYYY-MM-DD") === moment(new Date(props.data.dateTimeEnd)).format("YYYY-MM-DD"))) {
+            console.log(props.data.formPrivateSpace)
+            axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace/reservationByPrivateSpace/'+ props.data.formPrivateSpace+"/"+moment(new Date(startDate)).format("YYYY-MM-DD"))
+            .then(res => {
+                console.log(res.data)
+                let tmp = []
+                let tmp2
+                let tmp3
+                for (const el of res.data) {
+                    console.log(el["horaire_debut"])
+                    if(props.data.type === "start") {
+                        tmp2 = Number(moment(new Date(el["horaire_debut"])).format("H"))
+                        tmp3 = Number(moment(new Date(el["horaire_fin"])).format("H"))
+                    } else {
+                        tmp2 = Number(moment(new Date(el["horaire_debut"])).format("H")) + 1
+                        tmp3 = Number(moment(new Date(el["horaire_fin"])).format("H")) + 1
+                    }
+
+                    for(let i = tmp2; i < tmp3; i++) {
+                        tmp.push(setHours(setMinutes(new Date(), 0), i))
+                    }
+                }
+                setExcludeTime(tmp)
+            })
+            .catch(e => null)
+        }
+    }, [startDate, props.data.formPrivateSpace, props.data.reservation])
+    
     return (
       <DatePicker
         locale="fr"
@@ -34,8 +84,11 @@ const DateTimePicker = (props) => {
         showTimeSelect
         timeIntervals={60}
         timeFormat="HH:mm"
-        //minTime={setHours(setMinutes(new Date(), 0), 9)}
-        //maxTime={setHours(setMinutes(new Date(), 0), 17)}
+        // Max et min en fonction des horaires d'ouvertures du space
+        minTime={minTime}
+        maxTime={maxTime}
+        excludeTimes={excludeTime}
+        // Construire un tableau d'excludes times pour les horaires non disponibles
         timeCaption="Heure"
         dateFormat="d/MM/yyyy HH:mm"
       />
@@ -46,7 +99,7 @@ export function ReservationModal(props) {
     const[type, setType] = useState("1")
     const[isLoadingSpace, setIsLoadingSpace] = useState(true)
     const[isLoadingEquipment, setIsLoadingEquipment] = useState(true)
-    const[privativeSpace, setPrivativeSpace] = useState([]) // Tous pour pouvoir créer le select
+    const[privativeSpace, setPrivativeSpace] = useState([]) // Tous, pour pouvoir créer le select
     const[equipment, setEquipment] = useState([])
     const[formPrivateSpace, setFormPrivateSpace] = useState(null) // Celui selectionné dans le select
     const[formEquipment, setFormEquipment] = useState(null)
@@ -54,11 +107,25 @@ export function ReservationModal(props) {
     const[formMeal, setFormMeal] = useState(null)
     const[isLoadingMeal, setIsLoadingMeal] = useState(true)
     // Changer jour quand 23h01
-    const[dateTimeStart, setDateTimeStart] = useState(moment(new Date()).format('m') !== "0" ? moment(new Date()).add(1, 'hours').format('YYYY-MM-DD HH:00') : moment(new Date()).format('YYYY-MM-DD HH:00'))
-    const[dateTimeEnd, setDateTimeEnd] = useState(moment(new Date()).format('m') !== "0" ? moment(new Date()).add(2, 'hours').format('YYYY-MM-DD HH:00') : moment(new Date()).format('YYYY-MM-DD HH:00'))
+    let start
+    let end
+    if(moment(new Date()).format('m') !== "0") {
+        start = moment(new Date()).add(1, 'hours').format('YYYY-MM-DD HH:00')
+        //console.log(start)
+        end = moment(new Date()).add(2, 'hours').format('YYYY-MM-DD HH:00')
+    }
+    else {
+        start = moment(new Date()).format('YYYY-MM-DD HH:00')
+        end = moment(new Date()).format('YYYY-MM-DD HH:00')
+    }
+    const[dateTimeStart, setDateTimeStart] = useState(start)
+    const[dateTimeEnd, setDateTimeEnd] = useState(end)
     const[reservation, setReservation] = useState(null)
     const[privateDisponible, setPrivateDisponible] = useState(null)
     const[isLoadingPrivateDisponible, setIsLoadingPrivateDisponible] = useState(true)
+
+    const[horaireSpace, setHoraireSpace] = useState(null)
+    const[isLoadingHoraireSpace, setIsLoadingHoraireSpace] = useState(true)
 
     const handleType = (event) => {
         if(event.target.value === "1" || event.target.value === "2") setIsLoadingSpace(true)
@@ -84,12 +151,10 @@ export function ReservationModal(props) {
 
     const handleDateTimeStart = (v) => {
         setDateTimeStart(moment(v).format('YYYY-MM-DD HH:mm'))
-        //console.log("debut "+moment(v).format('YYYY-MM-DD HH:mm'))
     }
 
     const handleDateTimeEnd = (v) => {
         setDateTimeEnd(moment(v).format('YYYY-MM-DD HH:mm'))
-        //console.log("fin "+moment(v).format('YYYY-MM-DD HH:mm'))
     }
 
     const handleReservation = (v) => {
@@ -105,7 +170,7 @@ export function ReservationModal(props) {
                 console.log(res.data)
                 setIsLoadingSpace(false)
                 setPrivativeSpace(res.data)
-                setFormPrivateSpace([...res.data].shift().id)
+                if(!formPrivateSpace) setFormPrivateSpace([...res.data].shift().id)
             })
             .catch(e => setIsLoadingSpace(false))
         }
@@ -140,6 +205,15 @@ export function ReservationModal(props) {
                 setIsLoadingPrivateDisponible(false)
             })
             .catch(e => setIsLoadingPrivateDisponible(false))
+        }
+        if(isLoadingHoraireSpace) {
+            axios.get('https://cowork-paris.000webhostapp.com/index.php/Space/horaires/'+props.data.idSpace)
+                .then(res => {
+                    console.log(res.data)
+                    setHoraireSpace(res.data)
+                    setIsLoadingHoraireSpace(false)
+                })
+                .catch(e => setIsLoadingHoraireSpace(false))
         }
 
       }, [props.data.idSpace, isLoadingPrivateDisponible, formPrivateSpace, type]);
@@ -176,14 +250,14 @@ export function ReservationModal(props) {
                 </Form.Control>
             </Form.Group>
             }
-            {((type === "1" && !isLoadingSpace) || (type === "2" && !isLoadingSpace && !isLoadingEquipment)) && <>
+            {((type === "1" && !isLoadingSpace && !isLoadingHoraireSpace) || (type === "2" && !isLoadingSpace && !isLoadingEquipment)) && formPrivateSpace && <>
             <Form.Group>
                 <Form.Label>Date et heure de début</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, type: type}} /></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, typeRes: type, horaireSpace, formPrivateSpace, dateTimeStart, dateTimeEnd, reservation}} /></Form.Group>
             </Form.Group>
             <Form.Group>
                 <Form.Label>Date et heure de fin</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, type: type}} /></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, typeRes: type, horaireSpace, formPrivateSpace, dateTimeStart, dateTimeEnd, reservation}} /></Form.Group>
             </Form.Group>
             </>}
             {type === "3" && !isLoadingMeal && 
@@ -196,7 +270,7 @@ export function ReservationModal(props) {
             </Form.Group>
             <Form.Group>
                 <Form.Label>Date et heure</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, type: type}}/></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, typeRes: type, horaireSpace}}/></Form.Group>
             </Form.Group>
             </>
             }
