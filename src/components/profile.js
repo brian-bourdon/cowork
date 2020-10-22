@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner, Alert} from 'react-bootstrap'
+import {Tabs, Form, Button, Tab, Col, Row, Jumbotron, Accordion, Card, Spinner, Alert, useAccordionToggle} from 'react-bootstrap'
 import {submitModification} from '../components/inscription'
 import { getCookie, setCookie } from '../util/util'
 import axios from 'axios'
@@ -202,11 +202,13 @@ export function ProfileTab(props) {
 }
 
 function ListReservations(props) {
+  console.log(props)
   return (
     <Accordion defaultActiveKey="0">
-      {props.data.map(v => 
+      {props.data.data.map(v => 
       <Card>
         <Card.Header>
+        <Button variant="danger" className="float-right" onClick={() => Annuler(v.id, props.data.setIsDeleted, props.data.type)}>Annuler</Button>
           <Accordion.Toggle as={Button} variant="link" eventKey={v.id}>
             {v.horaire_debut || v.horaire || v.id}
           </Accordion.Toggle>
@@ -222,6 +224,16 @@ function ListReservations(props) {
   )
 }
 
+function Annuler(id, setIsDeleted, type) {
+  let uri = ""
+  if(type === "privative") uri = "ReservationPrivateSpace/delete/"
+  else if (type === "equipment") uri = "ReservationEquipment/delete/"
+  else if (type === "meal") uri = "ReservationMeal/delete/"
+  else if (type === "events") uri = "ReservationEvents/delete/"
+
+  axios.get("https://cowork-paris.000webhostapp.com/index.php/"+uri+id).then(res => setIsDeleted(true)).catch(err => setIsDeleted(false))
+}
+
 export function CustomerReservations(props) {
   const [privative, setPrivative] = useState([])
 
@@ -234,6 +246,7 @@ export function CustomerReservations(props) {
   const [activeTab, setActiveTab] = useState("privative")
 
   const [isLoading, setIsLoading] = useState({privative: true, equipment: true, meal: true, events: true})
+  const [isDeleted, setIsDeleted] = useState(null)
 
   const handleSelect = (tab) => {
     switch(tab) {
@@ -287,13 +300,16 @@ export function CustomerReservations(props) {
       })
       .catch(e => setIsLoading({...isLoading, events: false}))
     }
-  }, [activeTab]);
+  }, [activeTab, isDeleted]);
 
   return (
     <Tabs defaultActiveKey="privative" id="uncontrolled-tab-example" onSelect={(e) => handleSelect(e)}>
       <Tab eventKey="privative" title="Espaces privatifs" name="privative">
           <Row>
               <Col lg="6" className="pt-3">
+                {activeTab === "privative" && isDeleted !== null && <Alert variant={isDeleted ? "success" : "danger"}>
+                {isDeleted ? "Réservation annulée" : "Echec de l'annulation"}
+                </Alert>}
                 {isLoading.privative && <div className="text-center"><Spinner
                 as="span"
                 animation="border"
@@ -303,13 +319,16 @@ export function CustomerReservations(props) {
                 aria-hidden="true"
                 style={{width: "5em", height: "5em"}}
                 /></div>}
-                {!isLoading.privative && activeTab === "privative" && <ListReservations data={privative}/>}
+                {!isLoading.privative && activeTab === "privative" && <ListReservations data={{data: privative, setIsDeleted, type: "privative"}}/>}
               </Col>
           </Row>
       </Tab>
       <Tab eventKey="equipment" title="Matériel" name="equipment">
           <Row>
               <Col lg="6" className="pt-3">
+                {activeTab === "equipment" && isDeleted !== null && <Alert variant={isDeleted ? "success" : "danger"}>
+                {isDeleted ? "Réservation annulée" : "Echec de l'annulation"}
+                </Alert>}
                 {isLoading.equipment && <div className="text-center"><Spinner
                   as="span"
                   animation="border"
@@ -317,15 +336,18 @@ export function CustomerReservations(props) {
                   variant="primary"
                   role="status"
                   aria-hidden="true"
-                  style={{width: "5em", height: "5em"}}
+                  stye={{width: "5em", height: "5em"}}
                   /></div>}
-                {!isLoading.equipment && activeTab === "equipment" && <ListReservations data={equipment}/>}
+                {!isLoading.equipment && activeTab === "equipment" && <ListReservations data={{data: equipment, setIsDeleted, type: "equipment"}}/>}
               </Col>
           </Row>
       </Tab>
       <Tab eventKey="meal" title="Plateaux repas" name="meal">
           <Row>
               <Col lg="6" className="pt-3">
+                {activeTab === "meal" && isDeleted !== null && <Alert variant={isDeleted ? "success" : "danger"}>
+                {isDeleted ? "Réservation annulée" : "Echec de l'annulation"}
+                </Alert>}
                 {isLoading.meal && <div className="text-center"><Spinner
                   as="span"
                   animation="border"
@@ -335,13 +357,16 @@ export function CustomerReservations(props) {
                   aria-hidden="true"
                   style={{width: "5em", height: "5em"}}
                   /></div>}
-                {!isLoading.meal && activeTab === "meal" && <ListReservations data={meal}/>}
+                {!isLoading.meal && activeTab === "meal" && <ListReservations data={{data: meal, setIsDeleted, type: "meal"}}/>}
               </Col>
           </Row>
       </Tab>
       <Tab eventKey="events" title="Evenements" name="events">
           <Row>
               <Col lg="6" className="pt-3">
+                {activeTab === "events" && isDeleted !== null && <Alert variant={isDeleted ? "success" : "danger"}>
+                {isDeleted ? "Réservation annulée" : "Echec de l'annulation"}
+                </Alert>}
                 {isLoading.events && <div className="text-center"><Spinner
                   as="span"
                   animation="border"
@@ -351,7 +376,7 @@ export function CustomerReservations(props) {
                   aria-hidden="true"
                   style={{width: "5em", height: "5em"}}
                   /></div>}
-                {!isLoading.events && activeTab === "events" && <ListReservations data={events}/>}
+                {!isLoading.events && activeTab === "events" && <ListReservations data={{data: events, setIsDeleted, type: "events"}}/>}
               </Col>
           </Row>
       </Tab>
