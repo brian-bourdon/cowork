@@ -168,7 +168,6 @@ function App() {
                     </Col>)}
                     </Row>
                 </CardDeck>
-                  {/* TODO: Replace by card deck */}
                 </Row>
               </Col>
               

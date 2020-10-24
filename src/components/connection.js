@@ -6,6 +6,7 @@ export function Connection(email, pwd, setIsLoading, handleClose, handleUser) {
     axios.get('https://cowork-paris.000webhostapp.com/index.php/user/show/'+email)
     .then(res => {
       console.log(res.data)
+      //delete res.data["admin"]
       if(res.data.pwd === pwd) {
         console.log("nnnn")
         axios.get('https://cowork-paris.000webhostapp.com/index.php/user/abonnement/'+res.data.id).then(resA => {
