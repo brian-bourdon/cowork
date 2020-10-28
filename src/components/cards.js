@@ -28,18 +28,18 @@ export function Cards(props) {
         ½ heure suivante : 2€<br/>
         Journée (5 heures et plus) : 20€<br/>
         <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement :</div>
-        24€ TTC /mois<br/>
-        <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement 12 mois:</div>
-        20€ TTC /mois<br/>
+        24€ TTC /Mois<br/>
+        <div className="font-weight-bold pb-1 pt-2">Devenir membre 12 mois:</div>
+        20€ TTC /Mois<br/>
         </>)
     }
     else if(props.infos.type === 2) {
       text = (<>
         <div className="font-weight-bold pb-5 pt-2">Bénéficiez d'un accès en illimité 7/7j</div>
         <div className="font-weight-bold pb-1">Devenir membre résident sans engagement :</div>
-        300 TTC /mois<br/>
-        <div className="font-weight-bold pb-1 pt-2">Devenir membre sans engagement 12 mois:</div>
-        252€ TTC /mois<br/>
+        300 TTC /Mois<br/>
+        <div className="font-weight-bold pb-1 pt-2">Devenir membre 8 mois:</div>
+        252€ TTC /Mois<br/>
         </>)
     }
     return (

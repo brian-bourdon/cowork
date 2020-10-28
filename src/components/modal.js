@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Form, Button,Modal, Spinner, Alert} from 'react-bootstrap'
 import {Connection} from '../components/connection'
 import {submitInscription, updateUser} from '../components/inscription'
+import moment from 'moment'
 
 export function ConnectionModal(props) {
     const [email, setEmail] = useState("")
@@ -15,7 +16,7 @@ export function ConnectionModal(props) {
     const handlePwd = (event) => {
       setPwd(event.target.value)
     }
-
+    console.log(props.data)
     return (
       <Modal show={props.data.show} onHide={props.data.handleClose}>
         <Modal.Header closeButton>
@@ -32,7 +33,7 @@ export function ConnectionModal(props) {
               <Form.Control type="password" placeholder="Mot de passe" onKeyUp={handlePwd.bind(this)}/>
             </Form.Group>
             <div className="text-center pt-3">
-              <Button className="mb-3" variant="primary" onClick={() => {Connection(email, pwd, setIsLoading, props.data.handleClose, props.data.handleUser)}} disabled={email.trim() === "" || pwd.trim() === ""}>
+              <Button className="mb-3" variant="primary" onClick={() => {Connection(email, pwd, setIsLoading, props.data.handleUser)}} disabled={email.trim() === "" || pwd.trim() === ""}>
               {isLoading && <Spinner
                 as="span"
                 animation="border"
@@ -128,8 +129,9 @@ export function ConnectionModal(props) {
     );
   }
 
-  export function SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription, connected, user, type) {
+  export function SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleSub, handleSubscription, successSubscription, connected, user, type, id_abonnement) {
     let user2 = {...user}
+    console.log(id_abonnement)
     return(
       <>
       <Form>
@@ -139,7 +141,7 @@ export function ConnectionModal(props) {
         </Form.Group>
         <Form.Group controlId="prenom">
           <Form.Label>Prenom</Form.Label>
-          <Form.Control type="text" placeholder="prenom" onKeyUp={handleFirstname.bind(this)} required/>
+          <Form.Control type="text" placeholder="Prenom" onKeyUp={handleFirstname.bind(this)} required/>
         </Form.Group>
         <Form.Group controlId="prenom">
           <Form.Label>Date de naissance</Form.Label>
@@ -157,12 +159,16 @@ export function ConnectionModal(props) {
           <Form.Label>Abonnement</Form.Label>
           <Form.Control as="select" defaultValue={defV} onChange={handleSub.bind(this)}>
             {!connected && type === 0 && <option value="1">Sans abonnement</option>}
-            {type === 1 && <option value="2">Abonnement simple 12 mois sans engagement</option>}
+            {type === 1 && <option value="2">Abonnement simple 12 mois puis sans engagement</option>}
             {type === 1 && <option value="3">Abonnement simple sans engagement</option>}
-            {type === 2 && <option value="4">Abonnement résident 8 mois sans engagement</option>}
+            {type === 2 && <option value="4">Abonnement résident 8 mois puis sans engagement</option>}
             {type === 2 && <option value="5">Abonnement résident sans engagement</option>}
           </Form.Control>
         </Form.Group>}
+        <p>{"Prix : " + (id_abonnement === "1" ? "Gratuit" : id_abonnement === "2" ? "20€ TTC /mois " : id_abonnement === "3" ? "24€ TTC /mois " : id_abonnement === "4" ? "252€ TTC /mois " : "300€ TTC /mois")}</p>
+        {id_abonnement !== "1" && <Alert key={1} variant="warning">
+          {"Le premier débit sera effectué le " + moment(new Date()).add(1, 'monts').format("dddd DD MMMM YYYY") + " à " +  moment(new Date()).add(1, 'monts').format("HH") + "h" + moment(new Date()).add(1, 'monts').format("mm")}
+        </Alert>}
         {!successSubscription && <div className="text-center pt-3">
           <Button className="mb-3" variant="primary" onClick={()=>handleSubscription(user2)}>
             Souscrire
@@ -177,10 +183,10 @@ export function ConnectionModal(props) {
   }
   
   export function DetailsModal(props) {
-    let defV = 1
-    if(props.infos.type === 0) defV = 1
-    else if(props.infos.type === 1) defV = 2
-    else defV = 4
+    let defV = "1"
+    if(props.infos.type === 0) defV = "1"
+    else if(props.infos.type === 1) defV = "2"
+    else defV = "4"
 
     const[firstname, setFirstname] = useState("")
     const[lastname, setLastname] = useState("")
@@ -234,7 +240,7 @@ export function ConnectionModal(props) {
           <Modal.Title>{props.infos.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {subModal && SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription, props.infos.connected, props.infos.user, props.infos.type)}
+          {subModal && SubscriptionModal(defV, handleFirstname, handleLastname, handleDate_naissance, handleEmail, handlePwd, handleAbonnement, handleSubscription, successSubscription, props.infos.connected, props.infos.user, props.infos.type, id_abonnement)}
           {!subModal && props.infos.text}
           {!subModal && <div className="text-center pt-3">
             <Button variant="success" onClick={handleSubscriptionModal}>

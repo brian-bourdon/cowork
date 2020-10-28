@@ -29,9 +29,9 @@ export function Header(props) {
             <Nav className="mr-auto">
             </Nav>
             <Nav>
-              {!getCookie("id") && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowC}>Connection</Button>}
-              {!getCookie("id") && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowI}>Inscription</Button>}
-              {getCookie("id") && <DropdownButton id="dropdown-item-button" title={upperCaseFirst(props.data.user.firstname.toLowerCase())} className="person-circle" alignRight>
+              {!props.data.user && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowC}>Connection</Button>}
+              {!props.data.user && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowI}>Inscription</Button>}
+              {props.data.user && <DropdownButton id="dropdown-item-button" title={upperCaseFirst(props.data.user.firstname.toLowerCase())} className="person-circle" alignRight>
               <Dropdown.Item as="button" onClick={() => props.data.handleProfile(true)}>Profil</Dropdown.Item>
               <Dropdown.Item as="button" onClick={() => props.data.handleCustomerReservations(true)}>Réservations</Dropdown.Item>
               <Dropdown.Item as="button" onClick={() => props.data.handleEvenements()}>Evenement</Dropdown.Item>

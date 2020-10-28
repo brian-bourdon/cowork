@@ -1,7 +1,7 @@
 import {setCookie} from '../util/util';
 import axios from 'axios'
 
-export function Connection(email, pwd, setIsLoading, handleClose, handleUser) {
+export function Connection(email, pwd, setIsLoading, handleUser) {
     setIsLoading(true)
     axios.get('https://cowork-paris.000webhostapp.com/index.php/user/show/'+email)
     .then(res => {

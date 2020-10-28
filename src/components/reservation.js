@@ -17,13 +17,13 @@ const DateTimePicker = (props) => {
     const[minTime, setMinTime] = useState(null)
     const[maxTime, setMaxTime] = useState(null)
     const CustomInput = ({ value, onClick }) => (
-         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value} style={{borderColor: props.data.typeRes === "1" ? (!props.data.isLoadingPrivateDisponible ? (props.data.privateDisponible.status ? "green" : "red") : null) : null, borderWidth:  props.data.typeRes === "1" && !props.data.isLoadingPrivateDisponible && "2px"}}/>
+         <Form.Control type="text" className="example-custom-input" onClick={onClick} value={value} style={{borderColor: (props.data.typeRes === "1" || props.data.typeRes === "2") ? (!props.data.isLoading ? (props.data.disponible.status ? "green" : "red") : null) : null, borderWidth:  (props.data.typeRes === "1" || props.data.typeRes === "2") && !props.data.isLoading && "2px"}}/>
       );
     const handleDate = (date) => {
         setStartDate(date)
         if(props.data.handleDateTimeStart) props.data.handleDateTimeStart(date)
         else if(props.data.handleDateTimeEnd) props.data.handleDateTimeEnd(date)
-        props.data.setIsLoadingPrivateDisponible(true)
+        props.data.setIsLoading(true)
     }
     useEffect(() => {
         if(!startDate) {
@@ -34,22 +34,30 @@ const DateTimePicker = (props) => {
 
             const semaine = ["lundi","mardi","mercredi","jeudi"]
             const weekend = ["samedi","dimanche"]
-            if(semaine.includes(moment(new Date()).format("dddd"))) {
-                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_start.split(":")[0]))
-                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_end.split(':')[0]))
+            if(props.data.typeSelect === "1" || props.data.typeSelect === "2") {
+                if(semaine.includes(moment(new Date()).format("dddd"))) {
+                    setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_start.split(":")[0]))
+                    setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_semaine_end.split(':')[0]))
+                }
+                else if(weekend.includes(moment(new Date()).format("dddd"))) {
+                    setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_start.split(":")[0]))
+                    setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_end.split(':')[0]))
+                }
+                else {
+                    setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_start.split(":")[0]))
+                    setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_end.split(':')[0]))
+                }
             }
-            else if(weekend.includes(moment(new Date()).format("dddd"))) {
-                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_start.split(":")[0]))
-                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_weekend_end.split(':')[0]))
-            }
-            else {
-                setMinTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_start.split(":")[0]))
-                setMaxTime(setHours(setMinutes(new Date(), 0), props.data.horaireSpace.horaire_vendredi_end.split(':')[0]))
+            else { // Meal
+                setMinTime(setHours(setMinutes(new Date(), 0), 12))
+                setMaxTime(setHours(setMinutes(new Date(), 0), 14))
             }
         }
         if((startDate || props.data.reservation) && (moment(new Date(props.data.dateTimeStart)).format("YYYY-MM-DD") === moment(new Date(props.data.dateTimeEnd)).format("YYYY-MM-DD"))) {
-            console.log(props.data.formPrivateSpace)
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace/reservationByPrivateSpace/'+ props.data.formPrivateSpace+"/"+moment(new Date(startDate)).format("YYYY-MM-DD"))
+            console.log(props.data.type)
+            let uri
+            props.data.typeSelect === "1" ? uri = "ReservationPrivateSpace/reservationByPrivateSpace/" : uri = "ReservationEquipment/reservationByEquipment/"
+            axios.get('https://cowork-paris.000webhostapp.com/index.php/'+ uri + props.data.formSelect+"/"+moment(new Date(startDate)).format("YYYY-MM-DD"))
             .then(res => {
                 console.log(res.data)
                 let tmp = []
@@ -73,7 +81,7 @@ const DateTimePicker = (props) => {
             })
             .catch(e => null)
         }
-    }, [startDate, props.data.formPrivateSpace, props.data.reservation])
+    }, [startDate, props.data.formSelect, props.data.reservation])
     
     return (
       <DatePicker
@@ -95,6 +103,44 @@ const DateTimePicker = (props) => {
     );
   };
 
+function intializeDate(type, dateTimeStart, dateTimeEnd, setDateTimeStart, setDateTimeEnd) {
+    if((type === "1" || type === "2") && !dateTimeStart && !dateTimeEnd) {
+        let start
+        let end
+        if(moment(new Date()).format('m') !== "0") {
+
+            start = moment(new Date()).add(1, 'hours').format('YYYY-MM-DD HH:00')
+            //console.log(start)
+            end = moment(new Date()).add(2, 'hours').format('YYYY-MM-DD HH:00')
+        }
+        else {
+            start = moment(new Date()).format('YYYY-MM-DD HH:00')
+            end = moment(new Date()).format('YYYY-MM-DD HH:00')
+        }
+        setDateTimeStart(start)
+        setDateTimeEnd(end)
+    }
+    if(type === "3" && !dateTimeStart) {
+        let s
+        console.log(moment(new Date()).isBefore(new Date().setHours(12)))
+        if(moment(new Date()).isBefore(new Date().setHours(12))) {
+            s = moment(new Date()).format('YYYY-MM-DD 12:00')
+        }
+        else if(moment(new Date()).isSameOrAfter(new Date().setHours(12)) && moment(new Date()).isSameOrBefore(new Date().setHours(14))) {
+            if(moment(new Date()).format('m') !== "0") {
+
+                s = moment(new Date()).add(1, 'hours').format('YYYY-MM-DD HH:00')
+            }
+            else {
+                s = moment(new Date()).format('YYYY-MM-DD HH:00')
+            }
+        }
+        else s = moment(new Date().setHours(12)).add(1, 'days').format('YYYY-MM-DD HH:00')
+        console.log(s)
+        setDateTimeStart(s)
+    }
+}
+
 export function ReservationModal(props) {
     const[type, setType] = useState("1")
     const[isLoadingSpace, setIsLoadingSpace] = useState(true)
@@ -106,23 +152,17 @@ export function ReservationModal(props) {
     const[meal, setMeal] = useState([])
     const[formMeal, setFormMeal] = useState(null)
     const[isLoadingMeal, setIsLoadingMeal] = useState(true)
-    // Changer jour quand 23h01
-    let start
-    let end
-    if(moment(new Date()).format('m') !== "0") {
-        start = moment(new Date()).add(1, 'hours').format('YYYY-MM-DD HH:00')
-        //console.log(start)
-        end = moment(new Date()).add(2, 'hours').format('YYYY-MM-DD HH:00')
-    }
-    else {
-        start = moment(new Date()).format('YYYY-MM-DD HH:00')
-        end = moment(new Date()).format('YYYY-MM-DD HH:00')
-    }
-    const[dateTimeStart, setDateTimeStart] = useState(start)
-    const[dateTimeEnd, setDateTimeEnd] = useState(end)
+
+
+
+    const[dateTimeStart, setDateTimeStart] = useState(null)
+    const[dateTimeEnd, setDateTimeEnd] = useState(null)
     const[reservation, setReservation] = useState(null)
     const[privateDisponible, setPrivateDisponible] = useState(null)
     const[isLoadingPrivateDisponible, setIsLoadingPrivateDisponible] = useState(true)
+
+    const[equipmentDisponible, setEquipmentDisponible] = useState(null)
+    const[isLoadingEquipmentDisponible, setIsLoadingEquipmentDisponible] = useState(true)
 
     const[horaireSpace, setHoraireSpace] = useState(null)
     const[isLoadingHoraireSpace, setIsLoadingHoraireSpace] = useState(true)
@@ -134,6 +174,7 @@ export function ReservationModal(props) {
         handleReservation(null)
         setType(event.target.value)
         if(event.target.value === "1" ) setIsLoadingPrivateDisponible(true) // Plus tard enlever le if
+        intializeDate(type, dateTimeStart, dateTimeEnd, setDateTimeStart, setDateTimeEnd)
     }
 
     const handleFormPrivateSpace = (event) => {
@@ -142,6 +183,7 @@ export function ReservationModal(props) {
     }
 
     const handleFormEquipment = (event) => {
+        setIsLoadingEquipmentDisponible(true)
         setFormEquipment(event.target.value)
     }
 
@@ -150,6 +192,7 @@ export function ReservationModal(props) {
     }
 
     const handleDateTimeStart = (v) => {
+        console.log(v)
         setDateTimeStart(moment(v).format('YYYY-MM-DD HH:mm'))
     }
 
@@ -158,65 +201,82 @@ export function ReservationModal(props) {
     }
 
     const handleReservation = (v) => {
-        setIsLoadingPrivateDisponible(true)
+        type === "1" ? setIsLoadingPrivateDisponible(true) : setIsLoadingEquipmentDisponible(true)
         setReservation(v)
     }
     
     useEffect(() => {
+        // Changer jour quand 23h01
+        intializeDate(type, dateTimeStart, dateTimeEnd, setDateTimeStart, setDateTimeEnd)
+
         console.log("use_effect")
-        if(type === "1" || (type === "2" && isLoadingSpace)) {
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/PrivativeSpace/'+ props.data.idSpace)
-            .then(res => {
-                console.log(res.data)
-                setIsLoadingSpace(false)
-                setPrivativeSpace(res.data)
-                if(!formPrivateSpace) setFormPrivateSpace([...res.data].shift().id)
-            })
-            .catch(e => setIsLoadingSpace(false))
-        }
-        if(type === "2" && isLoadingEquipment) {
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/Equipment/'+ props.data.idSpace)
-            .then(res => {
-                console.log(res.data)
-                setIsLoadingEquipment(false)
-                setEquipment(res.data)
-                setFormEquipment([...res.data].shift().id)
-            })
-            .catch(e => setIsLoadingEquipment(false))
-        }
-        if(type === "3" && isLoadingMeal) {
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/Meal/'+ props.data.idSpace)
-            .then(res => {
-                console.log(res.data)
-                setIsLoadingMeal(false)
-                setMeal(res.data)
-                setFormMeal([...res.data].shift().id)
-            })
-            .catch(e => setIsLoadingMeal(false))
-        }
-        if(type === "1" && isLoadingPrivateDisponible && formPrivateSpace) {
-            console.log("ok")
-            console.log(formPrivateSpace)
-            console.log(isLoadingPrivateDisponible)
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace/disponible/'+formPrivateSpace+"/"+dateTimeStart.replace(" ", "+")+"/"+dateTimeEnd.replace(" ", "+"))
-            .then(res => {
-                console.log(res.data)
-                setPrivateDisponible(res.data)
-                setIsLoadingPrivateDisponible(false)
-            })
-            .catch(e => setIsLoadingPrivateDisponible(false))
-        }
-        if(isLoadingHoraireSpace) {
-            axios.get('https://cowork-paris.000webhostapp.com/index.php/Space/horaires/'+props.data.idSpace)
+        if((type === "1" || type === "2" && dateTimeStart && dateTimeEnd) || (type === "3" && dateTimeStart)) {
+            if(type === "1" || (type === "2" && isLoadingSpace)) {
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/PrivativeSpace/space/'+ props.data.idSpace)
                 .then(res => {
                     console.log(res.data)
-                    setHoraireSpace(res.data)
-                    setIsLoadingHoraireSpace(false)
+                    setIsLoadingSpace(false)
+                    setPrivativeSpace(res.data)
+                    if(!formPrivateSpace) setFormPrivateSpace([...res.data].shift().id)
                 })
-                .catch(e => setIsLoadingHoraireSpace(false))
+                .catch(e => setIsLoadingSpace(false))
+            }
+            if(type === "2" && isLoadingEquipment) {
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/Equipment/space/'+ props.data.idSpace)
+                .then(res => {
+                    console.log(res.data)
+                    setIsLoadingEquipment(false)
+                    setEquipment(res.data)
+                    if(!formEquipment) setFormEquipment([...res.data].shift().id)
+                })
+                .catch(e => setIsLoadingEquipment(false))
+            }
+            if(type === "3" && isLoadingMeal) {
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/Meal/space/'+ props.data.idSpace)
+                .then(res => {
+                    console.log(res.data)
+                    setIsLoadingMeal(false)
+                    setMeal(res.data)
+                    setFormMeal([...res.data].shift().id)
+                })
+                .catch(e => setIsLoadingMeal(false))
+            }
+            if(type === "1" && isLoadingPrivateDisponible && formPrivateSpace) {
+                console.log("ok")
+                console.log(formPrivateSpace)
+                console.log(isLoadingPrivateDisponible)
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace/disponible/'+formPrivateSpace+"/"+dateTimeStart.replace(" ", "+")+"/"+dateTimeEnd.replace(" ", "+"))
+                .then(res => {
+                    console.log(res.data)
+                    setPrivateDisponible(res.data)
+                    setIsLoadingPrivateDisponible(false)
+                })
+                .catch(e => setIsLoadingPrivateDisponible(false))
+            }
+            if(type === "2" && isLoadingEquipmentDisponible && formEquipment) {
+                console.log("ok")
+                console.log(formEquipment)
+                console.log(isLoadingEquipmentDisponible)
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment/disponible/'+formEquipment+"/"+dateTimeStart.replace(" ", "+")+"/"+dateTimeEnd.replace(" ", "+"))
+                .then(res => {
+                    console.log(res.data)
+                    setEquipmentDisponible(res.data)
+                    setIsLoadingEquipmentDisponible(false)
+                })
+                .catch(e => setIsLoadingEquipmentDisponible(false))
+            }
+            if(isLoadingHoraireSpace) {
+                axios.get('https://cowork-paris.000webhostapp.com/index.php/Space/horaires/'+props.data.idSpace)
+                    .then(res => {
+                        console.log(res.data)
+                        setHoraireSpace(res.data)
+                        setIsLoadingHoraireSpace(false)
+                    })
+                    .catch(e => setIsLoadingHoraireSpace(false))
+            }
         }
 
-      }, [props.data.idSpace, isLoadingPrivateDisponible, formPrivateSpace, type]);
+    }, [props.data.idSpace, isLoadingPrivateDisponible, formPrivateSpace, type, formEquipment, isLoadingEquipmentDisponible, dateTimeStart, dateTimeEnd]);
 
     return(
         <>
@@ -250,14 +310,14 @@ export function ReservationModal(props) {
                 </Form.Control>
             </Form.Group>
             }
-            {((type === "1" && !isLoadingSpace && !isLoadingHoraireSpace) || (type === "2" && !isLoadingSpace && !isLoadingEquipment)) && formPrivateSpace && <>
+            {((type === "1" && !isLoadingSpace && !isLoadingHoraireSpace && formPrivateSpace) || (type === "2" && !isLoadingSpace && !isLoadingEquipment && formEquipment)) && dateTimeStart && dateTimeEnd && <>
             <Form.Group>
                 <Form.Label>Date et heure de début</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, typeRes: type, horaireSpace, formPrivateSpace, dateTimeStart, dateTimeEnd, reservation}} /></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoading: type === "1" ? setIsLoadingPrivateDisponible : setIsLoadingEquipmentDisponible, disponible: type === "1" ? privateDisponible: equipmentDisponible, isLoading: type === "1" ? isLoadingPrivateDisponible : isLoadingEquipmentDisponible, typeRes: type, horaireSpace, formSelect: type === "1" ? formPrivateSpace : formEquipment, dateTimeStart, dateTimeEnd, reservation, typeSelect: type}} /></Form.Group>
             </Form.Group>
             <Form.Group>
                 <Form.Label>Date et heure de fin</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoadingPrivateDisponible, privateDisponible, isLoadingPrivateDisponible, typeRes: type, horaireSpace, formPrivateSpace, dateTimeStart, dateTimeEnd, reservation}} /></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeEnd, type: "end", setIsLoading: type === "1" ? setIsLoadingPrivateDisponible : setIsLoadingEquipmentDisponible, disponible: type === "1" ? privateDisponible: equipmentDisponible, isLoading: type === "1" ? isLoadingPrivateDisponible : isLoadingEquipmentDisponible, typeRes: type, horaireSpace, formSelect: type === "1" ? formPrivateSpace : formEquipment, dateTimeStart, dateTimeEnd, reservation, typeSelect: type}} /></Form.Group>
             </Form.Group>
             </>}
             {type === "3" && !isLoadingMeal && 
@@ -270,7 +330,7 @@ export function ReservationModal(props) {
             </Form.Group>
             <Form.Group>
                 <Form.Label>Date et heure</Form.Label>
-                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoadingPrivateDisponible, typeRes: type, horaireSpace}}/></Form.Group>
+                <Form.Group><DateTimePicker data={{handleDateTimeStart, type: "start", setIsLoading: setIsLoadingPrivateDisponible, typeRes: type, horaireSpace, dateTimeStart}}/></Form.Group>
             </Form.Group>
             </>
             }
@@ -288,15 +348,18 @@ export function ReservationModal(props) {
             {type === "1" && !isLoadingPrivateDisponible && <div className="text-center pb-3"><Alert className="mb-0" variant={privateDisponible.status ? "info" : "danger"}>
                 {privateDisponible.msg}
             </Alert></div>}
+            {type === "2" && !isLoadingEquipmentDisponible && <div className="text-center pb-3"><Alert className="mb-0" variant={equipmentDisponible.status ? "info" : "danger"}>
+                {equipmentDisponible.msg}
+            </Alert></div>}
             {reservation !== null && <div className="text-center"><Alert className="mb-0" variant={reservation ? "success" : "danger"}>
                 {reservation ? "Réservation réussie !" : "La réservation a échoué !"}
             </Alert></div>}
           </Modal.Body>
           <Modal.Footer className="justify-content-center">
-            {(type === "1" && !isLoadingPrivateDisponible || type !== "1") && <Button variant="success" onClick={() => Reservation({type, formPrivateSpace, dateTimeStart, dateTimeEnd}, handleReservation, props.data.user)} disabled={!privateDisponible.status}>
+            {(type === "1" && !isLoadingPrivateDisponible || type === "2" && !isLoadingEquipmentDisponible || type === "3") && <Button variant="success" onClick={() => Reservation({type, form: type === "1" ? formPrivateSpace : type === "2" ? formEquipment : formMeal, dateTimeStart, dateTimeEnd}, handleReservation, props.data.user)} disabled={(type === "1" && !privateDisponible.status) || (type === "2" && !equipmentDisponible.status)}>
               Réserver
             </Button>}
-            {type === "1" && isLoadingPrivateDisponible && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true" />}
+            {((type === "1" && isLoadingPrivateDisponible) || (type === "2" && isLoadingEquipmentDisponible)) && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true" />}
           </Modal.Footer>
         </Modal>
       </>
@@ -312,20 +375,20 @@ export function ReservationModal(props) {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationPrivateSpace"
             formData.append('horaire_debut', data.dateTimeStart);
             formData.append('horaire_fin', data.dateTimeEnd);
-            formData.append('id_espace_privatif', data.formPrivateSpace);
+            formData.append('id_espace_privatif', data.form);
             formData.append('id_user', user.id);
         }
         if(data.type === "2") {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationEquipment"
             formData.append('horaire_debut', data.dateTimeStart);
             formData.append('horaire_fin', data.dateTimeEnd);
-            formData.append('id_equipment', data.formPrivateSpace);
+            formData.append('id_equipment', data.form);
             formData.append('id_user', user.id);
         }
         if(data.type === "3") {
             url = "https://cowork-paris.000webhostapp.com/index.php/ReservationMeal"
             formData.append('horaire', data.dateTimeStart);
-            formData.append('id_meal', data.formPrivateSpace);
+            formData.append('id_meal', data.form);
             formData.append('id_user', user.id);
         }
         if(url) {

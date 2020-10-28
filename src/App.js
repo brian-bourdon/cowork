@@ -86,7 +86,7 @@ function App() {
 
   const handleUser = (v) => {
     if(v === null) setSpace(null)
-    if(v !== {} && v !== false) {
+    if(v !== {}) { // && !== false
       console.log(user)
       console.log(v)
       setUser(v)
