@@ -33,8 +33,8 @@ export function Header(props) {
               {!props.data.user && <Button variant="outline-light" className="mr-sm-2" onClick={props.data.handleShowI}>Inscription</Button>}
               {props.data.user && <DropdownButton id="dropdown-item-button" title={upperCaseFirst(props.data.user.firstname.toLowerCase())} className="person-circle" alignRight>
               <Dropdown.Item as="button" onClick={() => props.data.handleProfile(true)}>Profil</Dropdown.Item>
-              <Dropdown.Item as="button" onClick={() => props.data.handleCustomerReservations(true)}>Réservations</Dropdown.Item>
-              <Dropdown.Item as="button" onClick={() => props.data.handleEvenements()}>Evenement</Dropdown.Item>
+              {props.data.user.id_abonnement !== "null" && props.data.user.id_abonnement !== "1" && <><Dropdown.Item as="button" onClick={() => props.data.handleCustomerReservations(true)}>Réservations</Dropdown.Item>
+              <Dropdown.Item as="button" onClick={() => props.data.handleEvenements()}>Evenement</Dropdown.Item></>}
               <Dropdown.Item as="button" onClick={() => logout(props)}>Déconection</Dropdown.Item>
             </DropdownButton>}
             </Nav>
