@@ -161,7 +161,7 @@ export function ProfileTab(props) {
               }
               if(res.data[0].id_abonnement !== "1") {
                 let date
-                if(new Date().setDate(new Date(res.data[0].created_at).getDate()) < new Date()) date = moment(new Date().setDate(new Date(res.data[0].created_at).getDate())).add(1, "months").format("dddd Do MMMM YYYY")
+                if(new Date().setDate(new Date(res.data[0].created_at).getDate()) <= new Date()) date = moment(new Date().setDate(new Date(res.data[0].created_at).getDate())).add(1, "months").format("dddd Do MMMM YYYY")
                 else date = moment(new Date().setDate(new Date(res.data[0].created_at).getDate())).format("dddd Do MMMM YYYY")
                 textPrelevement = "Prochain prélevement le " + date
               }
