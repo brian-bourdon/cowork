@@ -1,25 +1,25 @@
 {
   "files": {
     "main.css": "/cowork/static/css/main.5f361e03.chunk.css",
-    "main.js": "/cowork/static/js/main.b103f147.chunk.js",
-    "main.js.map": "/cowork/static/js/main.b103f147.chunk.js.map",
+    "main.js": "/cowork/static/js/main.03af84b4.chunk.js",
+    "main.js.map": "/cowork/static/js/main.03af84b4.chunk.js.map",
     "runtime-main.js": "/cowork/static/js/runtime-main.f4464972.js",
     "runtime-main.js.map": "/cowork/static/js/runtime-main.f4464972.js.map",
     "static/css/2.3eb5a4d0.chunk.css": "/cowork/static/css/2.3eb5a4d0.chunk.css",
-    "static/js/2.03d2976c.chunk.js": "/cowork/static/js/2.03d2976c.chunk.js",
-    "static/js/2.03d2976c.chunk.js.map": "/cowork/static/js/2.03d2976c.chunk.js.map",
+    "static/js/2.35776ae3.chunk.js": "/cowork/static/js/2.35776ae3.chunk.js",
+    "static/js/2.35776ae3.chunk.js.map": "/cowork/static/js/2.35776ae3.chunk.js.map",
     "index.html": "/cowork/index.html",
-    "precache-manifest.b09d4c899f940e08539a10ea7b2eadea.js": "/cowork/precache-manifest.b09d4c899f940e08539a10ea7b2eadea.js",
+    "precache-manifest.193f42dfa52e7c986c0b399c4c0a1bdf.js": "/cowork/precache-manifest.193f42dfa52e7c986c0b399c4c0a1bdf.js",
     "service-worker.js": "/cowork/service-worker.js",
     "static/css/2.3eb5a4d0.chunk.css.map": "/cowork/static/css/2.3eb5a4d0.chunk.css.map",
     "static/css/main.5f361e03.chunk.css.map": "/cowork/static/css/main.5f361e03.chunk.css.map",
-    "static/js/2.03d2976c.chunk.js.LICENSE.txt": "/cowork/static/js/2.03d2976c.chunk.js.LICENSE.txt"
+    "static/js/2.35776ae3.chunk.js.LICENSE.txt": "/cowork/static/js/2.35776ae3.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.f4464972.js",
     "static/css/2.3eb5a4d0.chunk.css",
-    "static/js/2.03d2976c.chunk.js",
+    "static/js/2.35776ae3.chunk.js",
     "static/css/main.5f361e03.chunk.css",
-    "static/js/main.b103f147.chunk.js"
+    "static/js/main.03af84b4.chunk.js"
   ]
 }
