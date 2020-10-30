@@ -58,7 +58,7 @@ export function Cards(props) {
             </Button>
           </Card.Footer>
         </Card>
-        {show && <DetailsModal infos={{title: props.infos.title, show: show, handleClose: handleClose, text: props.infos.text, btnText: "S'inscrire", type: props.infos.type, connected: props.infos.connected, subtitle: props.infos.subtitle, user: props.infos.user, handleUser: props.infos.handleUser, setUpdatedUser: props.infos.setUpdatedUser, handleSpace: props.infos.handleSpace}}/>}
+        {show && <DetailsModal infos={{setExpired: props.infos.setExpired, title: props.infos.title, show: show, handleClose: handleClose, text: props.infos.text, btnText: "S'inscrire", type: props.infos.type, connected: props.infos.connected, subtitle: props.infos.subtitle, user: props.infos.user, handleUser: props.infos.handleUser, setUpdatedUser: props.infos.setUpdatedUser, handleSpace: props.infos.handleSpace}}/>}
       </>
     );
   }

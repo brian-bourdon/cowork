@@ -78,7 +78,7 @@ export function submitInscription(user, handleInscription, handleClose) {
         })
   }
 
-  export function updateUser(user, real_user, handleUser, setUpdatedUser, handleSpace) {
+  export function updateUser(user, real_user, handleUser, setUpdatedUser, handleSpace, setExpired) {
     let formData = new FormData();
     let userUpdate = real_user
     for (const k in user) {
@@ -100,10 +100,14 @@ export function submitInscription(user, handleInscription, handleClose) {
                 for (const key in user) {
                     setCookie(key, user[key], 1)
                  }
+                 setCookie("id_abonnement", user.id_abonnement)
+                 let now = new Date()
+                 setCookie("created_at", now)
                  console.log(userUpdate)
-                 handleUser(userUpdate)
+                 handleUser({...userUpdate, created_at: now})
                  handleSpace(null)
                  setUpdatedUser(true)
+                 setExpired(false)
             } else {
               handleUser(false)
               handleSpace(null)

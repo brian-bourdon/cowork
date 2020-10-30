@@ -167,7 +167,7 @@ export function ConnectionModal(props) {
         </Form.Group>}
         <p>{"Prix : " + (id_abonnement === "1" ? "Gratuit" : id_abonnement === "2" ? "20€ TTC /mois " : id_abonnement === "3" ? "24€ TTC /mois " : id_abonnement === "4" ? "252€ TTC /mois " : "300€ TTC /mois")}</p>
         {id_abonnement !== "1" && <Alert key={1} variant="warning">
-          {"Le premier débit sera effectué le " + moment(new Date()).add(1, 'monts').format("dddd DD MMMM YYYY") + " à " +  moment(new Date()).add(1, 'monts').format("HH") + "h" + moment(new Date()).add(1, 'monts').format("mm")}
+          {"Le premier débit sera effectué le " + moment(new Date()).add(1, 'months').format("dddd DD MMMM YYYY") + " à " +  moment(new Date()).add(1, 'months').format("HH") + "h" + moment(new Date()).add(1, 'months').format("mm")}
         </Alert>}
         {!successSubscription && <div className="text-center pt-3">
           <Button className="mb-3" variant="primary" onClick={()=>handleSubscription(user2)}>
@@ -231,7 +231,7 @@ export function ConnectionModal(props) {
   
     const handleSubscription = (user) => {
       if(!props.infos.connected) submitInscription({firstname, lastname, date_naissance, email, pwd, id_abonnement}, handleSuccessSubscription, props.infos.handleClose)
-      else updateUser({id_abonnement: ""+id_abonnement}, user, props.infos.handleUser, props.infos.setUpdatedUser, props.infos.handleSpace)
+      else updateUser({id_abonnement: ""+id_abonnement}, user, props.infos.handleUser, props.infos.setUpdatedUser, props.infos.handleSpace, props.infos.setExpired)
     }
 
     return (
@@ -251,3 +251,74 @@ export function ConnectionModal(props) {
       </Modal>
       )
     }
+
+    export function TicketModal(props) {
+      const[objet, setObjet] = useState("")
+      const[text, setText] = useState("")
+      const[success, setsuccess] = useState(null)
+    
+      const handleObjet = (event) => {
+        
+        setObjet(event.target.value)
+      }
+      const handleText = (event) => {
+        
+        setText(event.target.value)
+      }
+  
+      const handleTicket = (v) => {
+        
+        setsuccess(v)
+      }
+  
+      return (
+        <Modal show={props.data.show} onHide={props.data.handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Aide</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="nom">
+                <Form.Label>Objet</Form.Label>
+                <Form.Control type="text" placeholder="Objet" onKeyUp={handleObjet.bind(this)} required/>
+              </Form.Group>
+              <Form.Group controlId="prenom">
+                <Form.Label>Texte</Form.Label>
+                <Form.Control as="textarea" placeholder="Texte" onKeyUp={handleText.bind(this)} required/>
+              </Form.Group>
+              <div className="text-center pt-3">
+                <Button className="mb-3" variant="primary" onClick={() => submitTicket(objet, text, handleTicket, props.data.user)}>
+                  Envoyer
+                </Button>
+              </div>
+            </Form>
+            {success !== null && <div className="text-center"><Alert className="mb-0" variant={success ? "success" : "danger"}>
+                  {success ? "Le ticket a bien été envoyé" : "Problème lors de l'envoi"}
+              </Alert></div>}
+          </Modal.Body>
+        </Modal>
+      );
+    }
+
+  function submitTicket(objet, text, handleTicket, user) {
+  let formData = new FormData();
+  formData.append("objet", objet)
+  formData.append("text", text)
+  if(user && user.id) formData.append("id_user", user.id)
+  fetch('https://cowork-paris.000webhostapp.com/index.php/ticket/',
+      {
+          body: formData,
+          method: "post"
+      })
+      .then(res=>res.json())
+      .then(res => {
+          if(res[0] === "Reservation created successfully.") {
+            handleTicket(true)
+          } else {
+            handleTicket(false)
+          }
+      })
+      .catch(e => {
+        handleTicket(false)
+      })
+  }

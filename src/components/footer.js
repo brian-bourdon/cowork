@@ -1,10 +1,13 @@
-import {Card, Navbar, NavbarBrand, Container} from 'react-bootstrap'
+import {Card, Navbar, NavbarBrand, Container, Button} from 'react-bootstrap'
 import React from 'react';
 
 export function Footer2() {
     return (
+      
       <Card bg="primary" text="light">
+        
         <Card.Body>
+          
           <blockquote className="blockquote mb-0">
             <p>
               {' '}
@@ -37,12 +40,12 @@ var phantom = {
   paddingTop: "50vh"
 }
 
-export function Footer({ children }) {
+export function Footer(props) {
     return (
         <div>
             <div style={phantom} />
             <div style={style}>
-                { children }
+                <Button onClick={() => props.data.handleShowD(true)}>Aide</Button>
             </div>
         </div>
     )

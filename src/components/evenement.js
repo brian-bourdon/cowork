@@ -16,7 +16,7 @@ export function EvenemenentWrapper(props) {
       }
 
     useEffect(() => {
-        if(props.data.evenement && props.data.user) axios.get('https://cowork-paris.000webhostapp.com/index.php/events/' + space).then(res => handleEventsData(res.data)).catch(err => console.log(err))
+        if(props.data.evenement && props.data.user) axios.get('https://cowork-paris.000webhostapp.com/index.php/events/space/' + space).then(res => handleEventsData(res.data)).catch(err => console.log(err))
     }, [space]);
 
     return (
@@ -78,7 +78,7 @@ export function CardsEvenement(props) {
     // TODO: nombre places restances + regles
     useEffect(() => {
         axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationEvents/total/' + props.infos.id).then(res => handlePlacesRestantes(res.data)).catch(err => console.log(err))
-        axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationEvents/isResByUser/' + props.infos.user_id).then(res => handleIsResByUser(res.data)).catch(err => console.log(err))
+        axios.get('https://cowork-paris.000webhostapp.com/index.php/ReservationEvents/isResByUser/' + props.infos.user_id + "/" + props.infos.id).then(res => handleIsResByUser(res.data)).catch(err => console.log(err))
      }, [inscription]);
 
      let img = ""
@@ -130,7 +130,9 @@ export function CardsEvenement(props) {
           </Card.Body>
           <Card.Footer>
             {!isLoadingRes && <Button variant="primary" onClick={() => InscriptionEvent(props.infos.user_id, props.infos.id, handleInscription)} disabled={placesRestantes <= 0 || isResByUser > 0}>
-                {placesRestantes <= 0 || isResByUser > 0 ? "Vous êtes déja inscris" : "S'inscrire"}
+                {placesRestantes <= 0 && "Plus de places disponibles"}
+                {isResByUser > 0 && "Vous êtes déja inscris"}
+                {!(placesRestantes <= 0 || isResByUser > 0) && "S'inscrire"}
             </Button>}
             {isLoadingRes && <Spinner as="span" animation="border" size="sm" variant="primary" role="status" aria-hidden="true"/>}
           </Card.Footer>

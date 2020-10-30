@@ -1,5 +1,6 @@
 import {setCookie} from '../util/util';
 import axios from 'axios'
+import moment from 'moment'
 
 export function Connection(email, pwd, setIsLoading, handleUser) {
     setIsLoading(true)
@@ -10,7 +11,10 @@ export function Connection(email, pwd, setIsLoading, handleUser) {
       if(res.data.pwd === pwd) {
         console.log("nnnn")
         axios.get('https://cowork-paris.000webhostapp.com/index.php/user/abonnement/'+res.data.id).then(resA => {
-          if(resA.data.length === 1) res.data["id_abonnement"] = resA.data[0].id_abonnement
+          if(resA.data.length === 1) {
+            res.data["id_abonnement"] = resA.data[0].id_abonnement
+            res.data["created_at"] = resA.data[0].created_at
+          }
           else res.data["id_abonnement"] = "null"
           for (const key in res.data) {
             setCookie(key, res.data[key], 1)

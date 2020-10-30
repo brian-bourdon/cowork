@@ -9,6 +9,7 @@ import fr from "date-fns/locale/fr";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from 'moment';
 
+
 const DateTimePicker = (props) => {
     registerLocale("fr", fr);
     const [startDate, setStartDate] = useState(null);
